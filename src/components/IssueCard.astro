@@ -1,0 +1,39 @@
+---
+import Chips from './Chips.astro';
+import { formatDateShort, isoDate, type Issue } from '../lib/issues';
+import { issueHref } from '../lib/paths';
+
+interface Props {
+	issue: Issue;
+	/** Marks the newest issue wherever it appears in a list. */
+	current?: boolean;
+}
+
+const { issue, current = false } = Astro.props;
+const { title, dek, date, issueNumber, regions, assets, eventType } = issue.data;
+---
+
+<article class="group border border-line bg-surface p-5 transition-colors hover:border-line-strong">
+	<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+		<span class="label whitespace-nowrap">
+			No. {issueNumber} · <time datetime={isoDate(date)}>{formatDateShort(date)}</time>
+		</span>
+		{
+			current && (
+				<span class="label whitespace-nowrap border border-accent text-accent px-1.5 py-0.5 leading-none">
+					Current issue
+				</span>
+			)
+		}
+	</div>
+
+	<h3 class="mt-2.5 text-xl leading-snug">
+		<a href={issueHref(issue.id)} class="no-underline transition-colors group-hover:text-accent">
+			<span class="sr-only">Read: </span>{title}
+		</a>
+	</h3>
+
+	<p class="mt-2 text-sm leading-relaxed text-ink-muted">{dek}</p>
+
+	<Chips regions={regions} assets={assets} eventType={eventType} class="mt-4" />
+</article>

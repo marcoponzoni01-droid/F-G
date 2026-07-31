@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import { EVENT_TYPES } from '../config/taxonomy';
+import { href } from '../lib/paths';
+import { site } from '../config/site';
+---
+
+<Base path="/about" title="About" description={site.description}>
+	<div class="mx-auto max-w-2xl px-5 sm:px-8 py-14">
+		<p class="label">About</p>
+		<h1 class="mt-3 font-serif text-3xl sm:text-4xl leading-tight">{site.tagline}</h1>
+
+		<div class="prose mt-8">
+			<p>
+				Most coverage of geopolitics stops at the event. Most coverage of markets starts at the
+				price. {site.name} is about the part in between — the mechanism by which a decision taken in
+				a capital city ends up in a portfolio, a freight bill or an inflation print.
+			</p>
+
+			<h2>What gets covered</h2>
+			<p>
+				Events are classified by the channel through which they transmit, not by the region they
+				happened in:
+			</p>
+			<ul>
+				{EVENT_TYPES.map((type) => <li>{type.label}</li>)}
+			</ul>
+			<p>
+				Each issue is also tagged by region and by the asset classes it touches, which is what makes
+				the <a href={href('/archive')}>archive</a> searchable along the dimensions that actually
+				matter when you are looking something up months later.
+			</p>
+
+			<h2>How it works</h2>
+			<p>
+				One issue a week, {site.cadence.toLowerCase()}. When the next issue is published, the
+				previous one moves into the archive automatically — same piece, same link, permanently. The
+				newsletter and the database are not two libraries; they are the same library, and the
+				newsletter is just the newest shelf.
+			</p>
+			<p>
+				The archive is free, has no account wall, and is searchable by full text as well as by
+				region, asset class, event type and date.
+			</p>
+
+			<h2>Method, and its limits</h2>
+			<p>
+				Every issue lists its sources. Where a claim rests on an estimate rather than a reported
+				figure, it is labelled as one. Where the read turns out to be wrong, the correction goes in
+				a later issue rather than quietly into the original — the archive is a record, and a record
+				you edit after the fact is not worth keeping.
+			</p>
+
+			<h2>Not investment advice</h2>
+			<p>
+				This is analysis and commentary for general information. It is not investment advice, not a
+				recommendation to buy or sell anything, and takes no account of your circumstances. Figures
+				are believed accurate at the time of writing and are not updated afterwards.
+			</p>
+		</div>
+
+		<div class="mt-12">
+			<NewsletterForm />
+		</div>
+	</div>
+</Base>

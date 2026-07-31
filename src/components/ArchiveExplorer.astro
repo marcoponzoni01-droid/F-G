@@ -1,0 +1,296 @@
+---
+import IssueCard from './IssueCard.astro';
+import { ASSETS, EVENT_TYPES, REGIONS } from '../config/taxonomy';
+import type { Issue } from '../lib/issues';
+import { href } from '../lib/paths';
+
+interface Props {
+	issues: Issue[];
+	/** Id of the newest issue, badged in the results. */
+	currentId?: string;
+}
+
+const { issues, currentId } = Astro.props;
+
+// Only offer facet options that actually occur in the corpus — an empty filter
+// is worse than a missing one.
+const present = {
+	regions: new Set(issues.flatMap((i) => i.data.regions)),
+	assets: new Set(issues.flatMap((i) => i.data.assets)),
+	types: new Set(issues.map((i) => i.data.eventType)),
+};
+
+const regionOptions = REGIONS.filter((r) => present.regions.has(r));
+const assetOptions = ASSETS.filter((a) => present.assets.has(a));
+const typeOptions = EVENT_TYPES.filter((t) => present.types.has(t.id));
+
+const control =
+	'w-full bg-surface border border-line-strong px-2.5 py-2 text-sm text-ink focus:border-accent focus:outline-none';
+---
+
+<section data-archive data-index-url={href('/search-index.json')}>
+	<form
+		class="border border-line bg-surface p-4 sm:p-5"
+		role="search"
+		aria-label="Search the archive"
+		data-archive-form
+	>
+		<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+			<div class="sm:col-span-2">
+				<label class="label block mb-1.5" for="ar-q">Search</label>
+				<input
+					id="ar-q"
+					type="search"
+					name="q"
+					placeholder="Sanctions, freight, sovereign debt…"
+					class={control}
+					autocomplete="off"
+					data-filter="q"
+				/>
+			</div>
+
+			<div>
+				<label class="label block mb-1.5" for="ar-type">Event type</label>
+				<select id="ar-type" name="type" class={control} data-filter="type">
+					<option value="">All types</option>
+					{typeOptions.map((type) => <option value={type.id}>{type.label}</option>)}
+				</select>
+			</div>
+
+			<div>
+				<label class="label block mb-1.5" for="ar-region">Region</label>
+				<select id="ar-region" name="region" class={control} data-filter="region">
+					<option value="">All regions</option>
+					{regionOptions.map((region) => <option value={region}>{region}</option>)}
+				</select>
+			</div>
+
+			<div>
+				<label class="label block mb-1.5" for="ar-asset">Asset class</label>
+				<select id="ar-asset" name="asset" class={control} data-filter="asset">
+					<option value="">All assets</option>
+					{assetOptions.map((asset) => <option value={asset}>{asset}</option>)}
+				</select>
+			</div>
+
+			<div>
+				<label class="label block mb-1.5" for="ar-from">From</label>
+				<input id="ar-from" type="date" name="from" class={control} data-filter="from" />
+			</div>
+
+			<div>
+				<label class="label block mb-1.5" for="ar-to">To</label>
+				<input id="ar-to" type="date" name="to" class={control} data-filter="to" />
+			</div>
+
+			<div class="flex items-end">
+				<button
+					type="button"
+					class="w-full border border-line-strong px-3 py-2 text-sm transition-colors hover:border-ink-muted disabled:opacity-40"
+					data-archive-clear
+					disabled
+				>
+					Clear filters
+				</button>
+			</div>
+		</div>
+	</form>
+
+	<noscript>
+		<p class="mt-3 text-sm text-ink-faint">
+			Search and filtering need JavaScript. Every issue is listed in full below.
+		</p>
+	</noscript>
+
+	<p class="mt-5 label" role="status" aria-live="polite" data-archive-count>
+		{issues.length}
+		{issues.length === 1 ? 'issue' : 'issues'}
+	</p>
+
+	<ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-archive-results>
+		{
+			issues.map((issue) => (
+				<li data-issue-id={issue.id}>
+					<IssueCard issue={issue} current={issue.id === currentId} />
+				</li>
+			))
+		}
+	</ul>
+
+	<p class="mt-8 hidden text-center text-sm text-ink-muted" data-archive-empty>
+		Nothing matches those filters.
+		<button type="button" class="underline decoration-accent underline-offset-2" data-archive-clear>
+			Clear them
+		</button>
+		to see every issue.
+	</p>
+</section>
+
+<script>
+	import Fuse from 'fuse.js';
+
+	interface SearchRecord {
+		id: string;
+		title: string;
+		dek: string;
+		summary: string;
+		date: string;
+		regions: string[];
+		assets: string[];
+		eventType: string;
+		tags: string[];
+		body: string;
+	}
+
+	type FilterName = 'q' | 'type' | 'region' | 'asset' | 'from' | 'to';
+
+	const root = document.querySelector<HTMLElement>('[data-archive]');
+
+	if (root) {
+		const controls = new Map<FilterName, HTMLInputElement | HTMLSelectElement>();
+		root.querySelectorAll<HTMLInputElement | HTMLSelectElement>('[data-filter]').forEach((el) => {
+			controls.set(el.dataset.filter as FilterName, el);
+		});
+
+		// The server-rendered cards stay the source of truth; filtering only ever
+		// hides and shows them. If anything below fails, the full list survives.
+		const cards = new Map<string, HTMLElement>();
+		root.querySelectorAll<HTMLElement>('[data-issue-id]').forEach((el) => {
+			cards.set(el.dataset.issueId ?? '', el);
+		});
+
+		const countEl = root.querySelector<HTMLElement>('[data-archive-count]');
+		const emptyEl = root.querySelector<HTMLElement>('[data-archive-empty]');
+		const clearButtons = root.querySelectorAll<HTMLButtonElement>('[data-archive-clear]');
+		const total = cards.size;
+
+		let records: SearchRecord[] = [];
+		let fuse: Fuse<SearchRecord> | null = null;
+
+		const read = (name: FilterName) => controls.get(name)?.value.trim() ?? '';
+
+		function hydrateFromUrl() {
+			const params = new URLSearchParams(window.location.search);
+			for (const [name, el] of controls) {
+				const value = params.get(name);
+				if (!value) continue;
+				// Ignore a facet value that is not an option here (e.g. a stale link).
+				if (el instanceof HTMLSelectElement && !Array.from(el.options).some((o) => o.value === value))
+					continue;
+				el.value = value;
+			}
+		}
+
+		function syncUrl() {
+			const params = new URLSearchParams();
+			for (const name of controls.keys()) {
+				const value = read(name);
+				if (value) params.set(name, value);
+			}
+			const query = params.toString();
+			window.history.replaceState(
+				null,
+				'',
+				query ? `${window.location.pathname}?${query}` : window.location.pathname,
+			);
+		}
+
+		function apply() {
+			const q = read('q');
+			const type = read('type');
+			const region = read('region');
+			const asset = read('asset');
+			const from = read('from');
+			const to = read('to');
+
+			const anyFilter = Boolean(q || type || region || asset || from || to);
+			clearButtons.forEach((button) => {
+				button.disabled = !anyFilter;
+			});
+
+			// No index yet (still loading, or the fetch failed): leave everything visible
+			// rather than showing a filtered view built on nothing.
+			if (records.length === 0) {
+				syncUrl();
+				return;
+			}
+
+			const matched = q.length >= 2 && fuse ? new Set(fuse.search(q).map((r) => r.item.id)) : null;
+
+			let visible = 0;
+			for (const record of records) {
+				const ok =
+					(!matched || matched.has(record.id)) &&
+					(!type || record.eventType === type) &&
+					(!region || record.regions.includes(region)) &&
+					(!asset || record.assets.includes(asset)) &&
+					// Dates are ISO yyyy-mm-dd, so string comparison is date comparison.
+					(!from || record.date >= from) &&
+					(!to || record.date <= to);
+
+				const card = cards.get(record.id);
+				if (card) card.style.display = ok ? '' : 'none';
+				if (ok) visible += 1;
+			}
+
+			if (countEl) {
+				// The noun agrees with the total, not the match count: "1 of 2 issues".
+				const noun = total === 1 ? 'issue' : 'issues';
+				countEl.textContent = anyFilter ? `${visible} of ${total} ${noun}` : `${total} ${noun}`;
+			}
+			emptyEl?.classList.toggle('hidden', visible > 0);
+
+			syncUrl();
+		}
+
+		function clear() {
+			for (const el of controls.values()) el.value = '';
+			apply();
+			controls.get('q')?.focus();
+		}
+
+		for (const el of controls.values()) {
+			el.addEventListener('input', apply);
+			el.addEventListener('change', apply);
+		}
+		clearButtons.forEach((button) => button.addEventListener('click', clear));
+
+		root.querySelector('[data-archive-form]')?.addEventListener('submit', (event) => {
+			event.preventDefault();
+			apply();
+		});
+
+		hydrateFromUrl();
+
+		const indexUrl = root.dataset.indexUrl;
+		if (indexUrl) {
+			fetch(indexUrl)
+				.then((response) => {
+					if (!response.ok) throw new Error(`Search index responded ${response.status}`);
+					return response.json() as Promise<SearchRecord[]>;
+				})
+				.then((data) => {
+					records = data;
+					fuse = new Fuse(records, {
+						keys: [
+							{ name: 'title', weight: 3 },
+							{ name: 'dek', weight: 2 },
+							{ name: 'summary', weight: 2 },
+							{ name: 'tags', weight: 2 },
+							{ name: 'regions', weight: 1.5 },
+							{ name: 'assets', weight: 1.5 },
+							{ name: 'body', weight: 1 },
+						],
+						threshold: 0.34,
+						ignoreLocation: true,
+						minMatchCharLength: 2,
+					});
+					apply();
+				})
+				.catch((error) => {
+					// Degrade to the complete server-rendered list.
+					console.warn('[archive] search index unavailable, showing all issues', error);
+				});
+		}
+	}
+</script>

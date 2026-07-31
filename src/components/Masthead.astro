@@ -1,0 +1,61 @@
+---
+import { site } from '../config/site';
+import { href } from '../lib/paths';
+
+const current = Astro.url.pathname.replace(/\/+$/, '');
+
+const nav = [
+	{ label: 'This week', path: '/' },
+	{ label: 'Archive', path: '/archive' },
+	{ label: 'About', path: '/about' },
+];
+
+function isActive(path: string): boolean {
+	const target = href(path).replace(/\/+$/, '');
+	return path === '/' ? current === target || current === '' : current.startsWith(target);
+}
+---
+
+<header class="border-b border-line">
+	<div class="mx-auto max-w-5xl px-5 sm:px-8">
+		<div class="flex items-baseline justify-between gap-4 pt-7 pb-5">
+			<a href={href('/')} class="group no-underline">
+				<span class="block font-serif text-2xl sm:text-3xl font-semibold tracking-tight">
+					{site.name}
+				</span>
+				<span class="mt-1 hidden sm:block text-sm text-ink-muted">{site.tagline}</span>
+			</a>
+			<a
+				href={href('/subscribe')}
+				class="shrink-0 border border-accent text-accent px-3.5 py-1.5 text-sm no-underline transition-colors hover:bg-accent-soft"
+			>
+				Subscribe
+			</a>
+		</div>
+		<nav aria-label="Primary" class="rule-double">
+			<ul class="flex flex-wrap gap-x-6 gap-y-1 py-2.5">
+				{
+					nav.map((item) => (
+						<li>
+							<a
+								href={href(item.path)}
+								aria-current={isActive(item.path) ? 'page' : undefined}
+								class:list={[
+									'label no-underline transition-colors hover:text-ink',
+									isActive(item.path) && 'text-ink',
+								]}
+							>
+								{item.label}
+							</a>
+						</li>
+					))
+				}
+				<li class="ml-auto">
+					<a href={href('/rss.xml')} class="label no-underline transition-colors hover:text-ink">
+						RSS
+					</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</header>

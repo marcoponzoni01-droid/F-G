@@ -1,0 +1,33 @@
+---
+import { site } from '../config/site';
+import { href } from '../lib/paths';
+
+const year = new Date().getUTCFullYear();
+const years = year > site.startYear ? `${site.startYear}–${year}` : `${site.startYear}`;
+---
+
+<footer class="mt-20 border-t border-line">
+	<div class="mx-auto max-w-5xl px-5 sm:px-8 py-10">
+		<div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+			<div class="max-w-sm">
+				<p class="font-serif text-lg">{site.name}</p>
+				<p class="mt-1.5 text-sm text-ink-muted">{site.tagline}</p>
+			</div>
+			<nav aria-label="Footer">
+				<ul class="flex flex-wrap gap-x-6 gap-y-2">
+					<li><a href={href('/')} class="label no-underline hover:text-ink">This week</a></li>
+					<li><a href={href('/archive')} class="label no-underline hover:text-ink">Archive</a></li>
+					<li>
+						<a href={href('/subscribe')} class="label no-underline hover:text-ink">Subscribe</a>
+					</li>
+					<li><a href={href('/about')} class="label no-underline hover:text-ink">About</a></li>
+					<li><a href={href('/rss.xml')} class="label no-underline hover:text-ink">RSS</a></li>
+				</ul>
+			</nav>
+		</div>
+		<p class="mt-8 pt-6 border-t border-line text-xs leading-relaxed text-ink-faint">
+			© {years} {site.author}. Analysis and commentary for general information only — not
+			investment advice, and not a recommendation to buy or sell any security.
+		</p>
+	</div>
+</footer>

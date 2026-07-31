@@ -1,0 +1,46 @@
+---
+interface Move {
+	instrument: string;
+	change: string;
+	note?: string;
+}
+
+interface Props {
+	moves: readonly Move[];
+	/** `compact` drops the notes column, for the homepage hero. */
+	variant?: 'full' | 'compact';
+}
+
+const { moves, variant = 'full' } = Astro.props;
+
+/** Colour the delta by sign; anything unsigned stays neutral. */
+function tone(change: string): string {
+	const trimmed = change.trim();
+	if (trimmed.startsWith('+')) return 'text-pos';
+	if (trimmed.startsWith('-') || trimmed.startsWith('−')) return 'text-neg';
+	return 'text-ink';
+}
+---
+
+{
+	moves.length > 0 && (
+		<section aria-label="Market moves" class="border border-line bg-surface">
+			<h2 class="label px-4 pt-3 pb-2 border-b border-line">Market moves</h2>
+			<ul class="divide-y divide-line">
+				{moves.map((move) => (
+					<li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2.5">
+						<span class="text-sm">{move.instrument}</span>
+						<span class:list={['font-mono text-sm tabular-nums', tone(move.change)]}>
+							{move.change}
+						</span>
+						{variant === 'full' && move.note && (
+							<span class="w-full sm:w-auto sm:ml-auto text-xs text-ink-faint sm:text-right">
+								{move.note}
+							</span>
+						)}
+					</li>
+				))}
+			</ul>
+		</section>
+	)
+}

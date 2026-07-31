@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+# Nothing here publishes anything. Hosting is deliberately not chosen yet —
+# see docs/DEPLOYING.md for the two ready-to-use options.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Check and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Types plus every issue's frontmatter against the schema in
+      # src/content.config.ts — a bad region or a missing dek fails here.
+      - name: Typecheck and validate content
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Check internal links
+        run: npm run check:links
+
+      # Proves the site still works when served from a subpath, so choosing
+      # GitHub Pages later stays a one-variable change rather than a refactor.
+      - name: Build for a subpath (host-portability check)
+        env:
+          SITE_URL: https://example.github.io
+          BASE_PATH: /F-G
+        run: |
+          npm run build
+          npm run check:links

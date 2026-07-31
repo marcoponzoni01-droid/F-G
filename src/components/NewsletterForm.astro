@@ -1,0 +1,131 @@
+---
+import { newsletter, site } from '../config/site';
+
+interface Props {
+	/** `panel` is the bordered block used on the homepage and subscribe page. */
+	variant?: 'panel' | 'inline';
+	heading?: string;
+	blurb?: string;
+}
+
+const {
+	variant = 'panel',
+	heading = 'Get it in your inbox',
+	blurb = `${site.cadence}: one issue on what moved, why, and what it cost.`,
+} = Astro.props;
+
+const field =
+	'w-full bg-paper border border-line-strong px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none';
+const button =
+	'shrink-0 border border-accent bg-accent-soft text-accent px-4 py-2 text-sm transition-colors hover:bg-accent hover:text-paper disabled:opacity-60';
+---
+
+<section
+	class:list={[
+		variant === 'panel' && 'border border-line bg-surface p-6',
+		variant === 'inline' && 'border-t border-line pt-6',
+	]}
+	aria-labelledby="newsletter-heading"
+>
+	<h2 id="newsletter-heading" class="font-serif text-xl">{heading}</h2>
+	<p class="mt-1.5 text-sm text-ink-muted">{blurb}</p>
+
+	{
+		newsletter.provider === 'buttondown' && (
+			<form
+				action={`https://buttondown.com/api/emails/embed-subscribe/${newsletter.handle}`}
+				method="post"
+				target="_blank"
+				class="mt-4 flex flex-col gap-2 sm:flex-row"
+			>
+				<label class="sr-only" for="bd-email">
+					Email address
+				</label>
+				<input
+					id="bd-email"
+					type="email"
+					name="email"
+					required
+					autocomplete="email"
+					placeholder="you@example.com"
+					class={field}
+				/>
+				<input type="hidden" name="embed" value="1" />
+				<button type="submit" class={button}>
+					Subscribe
+				</button>
+			</form>
+		)
+	}
+
+	{
+		newsletter.provider === 'beehiiv' && (
+			<iframe
+				src={newsletter.embedUrl}
+				title="Subscribe"
+				loading="lazy"
+				class="mt-4 w-full border-0"
+				height="120"
+			/>
+		)
+	}
+
+	{
+		newsletter.provider === 'none' && (
+			<div class="mt-4">
+				{/*
+				  No <form> here on purpose: with no provider configured there is nowhere
+				  to post, and a form that silently reloads the page is worse than one
+				  that says what is going on. This degrades cleanly without JavaScript —
+				  the fine print below is always visible.
+				*/}
+				<div class="flex flex-col gap-2 sm:flex-row">
+					<label class="sr-only" for="waitlist-email">
+						Email address
+					</label>
+					<input
+						id="waitlist-email"
+						type="email"
+						autocomplete="email"
+						placeholder="you@example.com"
+						class={field}
+						data-newsletter-input
+					/>
+					<button type="button" class={button} data-newsletter-button>
+						Subscribe
+					</button>
+				</div>
+				<p class="mt-2.5 text-xs text-ink-faint" data-newsletter-note>
+					Subscriptions open shortly — the full archive is free to read in the meantime.
+				</p>
+			</div>
+		)
+	}
+
+	{
+		newsletter.provider !== 'none' && (
+			<p class="mt-2.5 text-xs text-ink-faint">
+				{site.cadence}. No spam, unsubscribe in one click.
+			</p>
+		)
+	}
+</section>
+
+{
+	newsletter.provider === 'none' && (
+		<script>
+			// Acknowledge the click rather than pretending to subscribe someone.
+			document.querySelectorAll<HTMLElement>('[data-newsletter-button]').forEach((button) => {
+				button.addEventListener('click', () => {
+					const scope = button.closest('section');
+					const note = scope?.querySelector<HTMLElement>('[data-newsletter-note]');
+					if (!note) return;
+					note.textContent =
+						'Not open yet — no address has been stored. Follow the RSS feed and the first issue will reach you there.';
+					note.classList.add('text-accent');
+					note.classList.remove('text-ink-faint');
+				});
+			});
+		</script>
+	)
+}

@@ -1,0 +1,144 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Chips from '../../components/Chips.astro';
+import MarketMoves from '../../components/MarketMoves.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { formatDate, getNeighbours, getPublishedIssues, isoDate, type Issue } from '../../lib/issues';
+import { href, issueHref } from '../../lib/paths';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+	const all = await getPublishedIssues();
+	return all.map((issue) => ({ params: { id: issue.id }, props: { issue, all } }));
+};
+
+interface Props {
+	issue: Issue;
+	all: Issue[];
+}
+
+const { issue, all } = Astro.props;
+const { Content } = await render(issue);
+const { title, dek, date, issueNumber, regions, assets, eventType, tags, summary, marketMoves, sources } =
+	issue.data;
+
+const { older, newer } = getNeighbours(all, issue.id);
+const isCurrent = all[0]?.id === issue.id;
+---
+
+<Base
+	path={`/issues/${issue.id}`}
+	title={title}
+	description={summary}
+	ogType="article"
+	publishedTime={date.toISOString()}
+>
+	<article class="mx-auto max-w-5xl px-5 sm:px-8">
+		<header class="pt-10 pb-8 border-b border-line">
+			<div class="flex flex-wrap items-center gap-3">
+				<p class="label">
+					No. {issueNumber} · <time datetime={isoDate(date)}>{formatDate(date)}</time>
+				</p>
+				{
+					isCurrent ? (
+						<span class="label border border-accent text-accent px-1.5 py-0.5 leading-none">
+							Current issue
+						</span>
+					) : (
+						<span class="label border border-line-strong px-1.5 py-0.5 leading-none">Archived</span>
+					)
+				}
+			</div>
+
+			<h1 class="mt-4 font-serif text-3xl sm:text-4xl leading-tight max-w-3xl">{title}</h1>
+			<p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-muted">{dek}</p>
+			<Chips regions={regions} assets={assets} eventType={eventType} linked class="mt-6" />
+		</header>
+
+		<div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14 pt-9">
+			<div class="prose max-w-[68ch]">
+				<Content />
+			</div>
+
+			<aside class="lg:sticky lg:top-8 space-y-6 self-start">
+				{marketMoves.length > 0 && <MarketMoves moves={marketMoves} />}
+
+				{
+					sources.length > 0 && (
+						<section class="border border-line bg-surface">
+							<h2 class="label px-4 pt-3 pb-2 border-b border-line">Sources</h2>
+							<ul class="divide-y divide-line">
+								{sources.map((source) => (
+									<li>
+										<a
+											href={source.url}
+											rel="noopener noreferrer external"
+											target="_blank"
+											class="block px-4 py-2.5 text-sm text-ink-muted no-underline transition-colors hover:text-accent"
+										>
+											{source.title} <span aria-hidden="true">↗</span>
+										</a>
+									</li>
+								))}
+							</ul>
+						</section>
+					)
+				}
+
+				{
+					tags.length > 0 && (
+						<section>
+							<h2 class="label">Tags</h2>
+							<p class="mt-2 text-sm text-ink-faint">{tags.join(' · ')}</p>
+						</section>
+					)
+				}
+			</aside>
+		</div>
+
+		<div class="mt-14 max-w-[68ch]">
+			<NewsletterForm
+				heading="Next week, in your inbox"
+				blurb="One issue a week. This one stays in the archive either way."
+			/>
+		</div>
+
+		<nav aria-label="Other issues" class="mt-12 border-t border-line pt-6 grid gap-4 sm:grid-cols-2">
+			{
+				newer ? (
+					<a
+						href={issueHref(newer.id)}
+						class="group border border-line p-4 no-underline transition-colors hover:border-line-strong"
+					>
+						<span class="label">← Newer</span>
+						<span class="mt-1.5 block font-serif text-base leading-snug transition-colors group-hover:text-accent">
+							{newer.data.title}
+						</span>
+					</a>
+				) : (
+					<div />
+				)
+			}
+			{
+				older && (
+					<a
+						href={issueHref(older.id)}
+						class="group border border-line p-4 no-underline transition-colors hover:border-line-strong sm:text-right"
+					>
+						<span class="label">Older →</span>
+						<span class="mt-1.5 block font-serif text-base leading-snug transition-colors group-hover:text-accent">
+							{older.data.title}
+						</span>
+					</a>
+				)
+			}
+		</nav>
+
+		<p class="mt-8 text-sm">
+			<a href={href('/archive')} class="text-ink-muted no-underline hover:text-accent">
+				Search the full archive →
+			</a>
+		</p>
+	</article>
+</Base>

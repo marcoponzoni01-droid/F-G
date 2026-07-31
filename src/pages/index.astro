@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import Chips from '../components/Chips.astro';
+import IssueCard from '../components/IssueCard.astro';
+import MarketMoves from '../components/MarketMoves.astro';
+import NewsletterForm from '../components/NewsletterForm.astro';
+import { formatDate, getIssueIndex, isoDate } from '../lib/issues';
+import { href, issueHref } from '../lib/paths';
+import { site } from '../config/site';
+
+// `current` is just the newest issue by date — see src/lib/issues.ts.
+const { all, current } = await getIssueIndex();
+const recent = all.slice(1, 4);
+---
+
+<Base path="/">
+	<div class="mx-auto max-w-5xl px-5 sm:px-8">
+		{
+			current ? (
+				<section class="pt-12 pb-14 border-b border-line">
+					<p class="label">
+						This week · No. {current.data.issueNumber} ·{' '}
+						<time datetime={isoDate(current.data.date)}>{formatDate(current.data.date)}</time>
+					</p>
+
+					<h1 class="mt-4 font-serif text-3xl sm:text-5xl leading-[1.1] max-w-3xl">
+						<a href={issueHref(current.id)} class="no-underline transition-colors hover:text-accent">
+							{current.data.title}
+						</a>
+					</h1>
+
+					<p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-muted">{current.data.dek}</p>
+
+					<Chips
+						regions={current.data.regions}
+						assets={current.data.assets}
+						eventType={current.data.eventType}
+						linked
+						class="mt-6"
+					/>
+
+					<div class="mt-8 grid gap-8 md:grid-cols-[1fr_auto] md:items-start">
+						<a
+							href={issueHref(current.id)}
+							class="inline-flex w-fit items-center gap-2 self-start justify-self-start border border-accent text-accent px-4 py-2 text-sm no-underline transition-colors hover:bg-accent-soft"
+						>
+							Read this week's issue
+							<span aria-hidden="true">→</span>
+						</a>
+						{current.data.marketMoves.length > 0 && (
+							<div class="md:w-80">
+								<MarketMoves moves={current.data.marketMoves} variant="compact" />
+							</div>
+						)}
+					</div>
+				</section>
+			) : (
+				<section class="pt-12 pb-14 border-b border-line">
+					<p class="label">No issues yet</p>
+					<h1 class="mt-4 font-serif text-3xl sm:text-5xl leading-[1.1] max-w-3xl">
+						{site.tagline}
+					</h1>
+					<p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-muted">
+						The first issue is being written. Add a Markdown file to
+						<code class="font-mono text-base">src/content/issues/</code> and it appears here.
+					</p>
+				</section>
+			)
+		}
+
+		<section class="py-12 grid gap-10 md:grid-cols-[1.4fr_1fr] md:items-start">
+			<div>
+				<h2 class="label">What this is</h2>
+				<div class="mt-3 max-w-xl text-[0.975rem] leading-relaxed text-ink-muted space-y-4">
+					<p>
+						<strong class="text-ink">{site.name}</strong> covers one question: when a geopolitical
+						event happens, who pays for it, and through which mechanism?
+					</p>
+					<p>
+						Not the politics — the transmission. Which price moves first, which moves late, and
+						where the gap between the two is wide enough to matter.
+					</p>
+					<p>
+						Every issue is kept. The <a href={href('/archive')} class="underline decoration-accent underline-offset-2 hover:text-ink">archive</a>
+						{' '}is a searchable record of past events, filterable by region, asset class and event
+						type — so the newsletter is not something you have to read the week it arrives.
+					</p>
+				</div>
+			</div>
+			<NewsletterForm />
+		</section>
+
+		{
+			recent.length > 0 && (
+				<section class="pb-8">
+					<div class="flex items-baseline justify-between gap-4 border-t border-line pt-8">
+						<h2 class="label">From the archive</h2>
+						<a href={href('/archive')} class="label no-underline hover:text-ink">
+							All issues →
+						</a>
+					</div>
+					<div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{recent.map((issue) => (
+							<IssueCard issue={issue} />
+						))}
+					</div>
+				</section>
+			)
+		}
+	</div>
+</Base>

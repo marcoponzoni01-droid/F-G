@@ -1,0 +1,66 @@
+---
+import { eventTypeLabel } from '../config/taxonomy';
+import { href } from '../lib/paths';
+
+interface Props {
+	regions?: readonly string[];
+	assets?: readonly string[];
+	eventType?: string;
+	/** Chips link into the archive with that facet pre-selected. */
+	linked?: boolean;
+	class?: string;
+}
+
+const { regions = [], assets = [], eventType, linked = false, class: className = '' } = Astro.props;
+
+const base =
+	'inline-block border px-2 py-0.5 text-xs leading-5 whitespace-nowrap no-underline transition-colors';
+
+type Chip = { label: string; facet: 'type' | 'region' | 'asset'; value: string; class: string };
+
+const chips: Chip[] = [
+	...(eventType
+		? [
+				{
+					label: eventTypeLabel(eventType),
+					facet: 'type' as const,
+					value: eventType,
+					class: 'border-accent text-accent bg-accent-soft',
+				},
+			]
+		: []),
+	...regions.map((r) => ({
+		label: r,
+		facet: 'region' as const,
+		value: r,
+		class: 'border-line-strong text-ink-muted',
+	})),
+	...assets.map((a) => ({
+		label: a,
+		facet: 'asset' as const,
+		value: a,
+		class: 'border-line text-ink-faint',
+	})),
+];
+---
+
+{
+	chips.length > 0 && (
+		<ul class:list={['flex flex-wrap gap-1.5', className]}>
+			{chips.map((chip) => (
+				<li>
+					{linked ? (
+						<a
+							href={`${href('/archive')}?${chip.facet}=${encodeURIComponent(chip.value)}`}
+							class:list={[base, chip.class, 'hover:text-ink hover:border-ink-muted']}
+						>
+							{chip.label}
+						</a>
+					) : (
+						<span class:list={[base, chip.class]}>{chip.label}</span>
+					)}
+				</li>
+			))}
+		</ul>
+	)
+}
