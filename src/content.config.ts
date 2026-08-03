@@ -2,6 +2,7 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { ASSETS, EVENT_TYPE_IDS, REGIONS } from './config/taxonomy';
+import { chartSchema } from './lib/charts/types';
 
 /**
  * One collection holds both services.
@@ -10,11 +11,11 @@ import { ASSETS, EVENT_TYPE_IDS, REGIONS } from './config/taxonomy';
  * ages, so there is no `status` field and nothing to flip when an issue stops
  * being current — see src/lib/issues.ts.
  *
- * The glob pattern skips underscore-prefixed files so `_TEMPLATE.md` can live
+ * The glob pattern skips underscore-prefixed files so `_TEMPLATE.mdx` can live
  * beside real issues without being published.
  */
 const issues = defineCollection({
-	loader: glob({ pattern: '**/[!_]*.md', base: './src/content/issues' }),
+	loader: glob({ pattern: '**/[!_]*.{md,mdx}', base: './src/content/issues' }),
 	schema: z.object({
 		title: z.string().min(1).max(120),
 		/** Standfirst: one sentence, shown under the title and in cards. */
@@ -28,16 +29,27 @@ const issues = defineCollection({
 		tags: z.array(z.string().min(1)).default([]),
 		/** Reused for cards, RSS, and the meta description. */
 		summary: z.string().min(1).max(400),
-		/** The week's headline price action. Optional — omit for quiet weeks. */
+		/**
+		 * The week's price action. Optional — omit for quiet weeks.
+		 *
+		 * `level` carries the close as it should publish, formatted, because a
+		 * number here would be re-formatted by whatever locale the build ran in.
+		 * `note` is for a story-specific mover shown alongside the standing panel.
+		 */
 		marketMoves: z
 			.array(
 				z.object({
 					instrument: z.string().min(1),
+					level: z.string().min(1).optional(),
 					change: z.string().min(1),
 					note: z.string().optional(),
 				}),
 			)
 			.default([]),
+		/** Footnote under the panel, e.g. a provenance or estimate caveat. */
+		marketMovesNote: z.string().optional(),
+		/** One chart, placed in the body with `<IssueChart chart={frontmatter.chart} />`. */
+		chart: chartSchema.optional(),
 		sources: z
 			.array(
 				z.object({

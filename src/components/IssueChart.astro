@@ -1,0 +1,189 @@
+---
+import { renderChart, type ChartSpec } from '../lib/charts';
+
+/**
+ * The one visual an issue gets.
+ *
+ * Everything is rendered at build time — SVG, the numbers table, the tooltip
+ * payload — so the chart is complete before any JavaScript runs. The hover
+ * layer below is an enhancement; every value it can show is already in the
+ * "Show the numbers" table, which is what keeps the chart readable with a
+ * keyboard, a screen reader, or scripting off.
+ */
+interface Props {
+	chart: ChartSpec;
+}
+
+const { chart } = Astro.props;
+const { svg, head, rows, hover } = renderChart(chart);
+---
+
+<figure class="issue-chart" data-chart={chart.type} data-chart-id={chart.id}>
+	<Fragment set:html={svg} />
+
+	{/* Data, not code: `is:inline` keeps Astro from trying to bundle it. */}
+	<script is:inline type="application/json" data-chart-data set:html={JSON.stringify(hover)} />
+	<div class="ic-tooltip" data-tooltip hidden aria-hidden="true"></div>
+
+	<figcaption>
+		<strong>{chart.caption.lead}</strong>{' '}{chart.caption.text}
+		<span class="ic-illustrative">Illustrative placeholder data</span>
+	</figcaption>
+
+	<details class="ic-table">
+		<summary>Show the numbers</summary>
+		<div class="ic-table-scroll">
+			<table>
+				<caption>Illustrative placeholder data.</caption>
+				<thead>
+					<tr>
+						{
+							head.map((cell) =>
+								Array.isArray(cell) ? (
+									<th scope="col">
+										{cell[0]}
+										<span>{cell[1]}</span>
+									</th>
+								) : (
+									<th scope="col">{cell}</th>
+								),
+							)
+						}
+					</tr>
+				</thead>
+				<tbody>
+					{
+						rows.map(([when, ...cells]) => (
+							<tr>
+								<th scope="row">{when}</th>
+								{cells.map((cell) => (
+									<td>{cell}</td>
+								))}
+							</tr>
+						))
+					}
+				</tbody>
+			</table>
+		</div>
+	</details>
+</figure>
+
+<script>
+	/* One crosshair and tooltip layer for every chart on the page.
+	   Astro hoists and dedupes this, so five charts still ship one copy. */
+	interface Track {
+		name: string;
+		kind: keyof typeof FMT;
+		points: [number, number][];
+	}
+
+	interface ChartData {
+		x0: number;
+		x1: number;
+		span: number;
+		w: number;
+		labels: Record<string, string>;
+		tracks: Track[];
+	}
+
+	const FMT = {
+		pct2: (v: number) => `${v.toFixed(2)}%`,
+		pct1: (v: number) => `${v.toFixed(1)}%`,
+		pct0: (v: number) => `${v.toFixed(0)}%`,
+		index: (v: number) => v.toFixed(0),
+		bp: (v: number) => `${v.toFixed(0)}bp`,
+	};
+
+	function interp(points: [number, number][], x: number): number {
+		for (let i = 0; i < points.length; i++) {
+			if (points[i][0] === x) return points[i][1];
+			if (points[i][0] > x) {
+				const [a0, b0] = points[i - 1];
+				const [a1, b1] = points[i];
+				return b0 + ((x - a0) / (a1 - a0)) * (b1 - b0);
+			}
+		}
+		return points[points.length - 1][1];
+	}
+
+	document.querySelectorAll<HTMLElement>('.issue-chart').forEach((figure) => {
+		const payload = figure.querySelector('[data-chart-data]');
+		const svg = figure.querySelector<SVGSVGElement>('.ic-svg');
+		const hover = figure.querySelector<SVGGElement>('[data-hover]');
+		const crosshair = figure.querySelector<SVGLineElement>('.ic-crosshair');
+		const tip = figure.querySelector<HTMLElement>('[data-tooltip]');
+		if (!payload || !svg || !hover || !crosshair || !tip) return;
+
+		const chart: ChartData = JSON.parse(payload.textContent ?? '{}');
+		const stops = [...new Set(chart.tracks.flatMap((t) => t.points.map((p) => p[0])))].sort(
+			(a, b) => a - b,
+		);
+		let current: number | null = null;
+
+		function show(x: number) {
+			current = x;
+			const px = chart.x0 + (x / chart.span) * (chart.x1 - chart.x0);
+			crosshair!.setAttribute('x1', String(px));
+			crosshair!.setAttribute('x2', String(px));
+			hover!.removeAttribute('hidden');
+
+			// Labels come from data — inserted as text nodes, never innerHTML.
+			tip!.textContent = '';
+			const when = document.createElement('div');
+			when.className = 'tt-when';
+			when.textContent = chart.labels[String(x)] ?? String(x);
+			tip!.append(when);
+
+			const list = document.createElement('dl');
+			for (const track of chart.tracks) {
+				const name = document.createElement('dt');
+				name.textContent = track.name;
+				const value = document.createElement('dd');
+				value.textContent = FMT[track.kind](interp(track.points, x));
+				list.append(name, value);
+			}
+			tip!.append(list);
+			tip!.removeAttribute('hidden');
+
+			const box = svg!.getBoundingClientRect();
+			const left = (px / chart.w) * box.width;
+			const flip = left > box.width - 190;
+			tip!.style.left = `${Math.max(4, flip ? left - 180 : left + 14)}px`;
+			tip!.style.top = '10px';
+		}
+
+		function hide() {
+			current = null;
+			hover!.setAttribute('hidden', '');
+			tip!.setAttribute('hidden', '');
+		}
+
+		/* The whole plot is the hit area, so the reader aims at a date. */
+		function nearest(clientX: number): number {
+			const box = svg!.getBoundingClientRect();
+			const vx = ((clientX - box.left) / box.width) * chart.w;
+			const v = ((vx - chart.x0) / (chart.x1 - chart.x0)) * chart.span;
+			return stops.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a), stops[0]);
+		}
+
+		svg.addEventListener('pointermove', (e) => show(nearest(e.clientX)));
+		svg.addEventListener('pointerleave', hide);
+
+		/* Keyboard gets what the pointer gets. */
+		figure.tabIndex = 0;
+		figure.addEventListener('focus', () => show(current ?? stops[0]));
+		figure.addEventListener('blur', hide);
+		figure.addEventListener('keydown', (e) => {
+			const i = stops.indexOf(current ?? stops[0]);
+			if (e.key === 'ArrowRight') {
+				show(stops[Math.min(stops.length - 1, i + 1)]);
+				e.preventDefault();
+			}
+			if (e.key === 'ArrowLeft') {
+				show(stops[Math.max(0, i - 1)]);
+				e.preventDefault();
+			}
+			if (e.key === 'Escape') hide();
+		});
+	});
+</script>

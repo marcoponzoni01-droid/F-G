@@ -1,0 +1,114 @@
+---
+title: 'Storage is the constraint, not price'
+dek: 'The gas price tells you about today. The storage trajectory tells you about February — and only one of them is in the forwards.'
+date: 2026-06-28
+issueNumber: 1
+regions: [Europe, United Kingdom]
+assets: [Natural Gas, Rates]
+eventType: energy
+tags: [storage, inventory, heating-season, pass-through]
+summary: >-
+  A cold snap on full storage is a headline. A mild autumn on thin storage is a
+  rate decision. The variable that determines whether an energy shock reaches
+  monetary policy is the inventory path, which moves slowly enough to be watched
+  and is published weekly.
+marketMoves:
+  - { instrument: 'S&P 500', level: '6,367.94', change: '+0.6%' }
+  - { instrument: 'NASDAQ', level: '21,514.36', change: '+0.4%' }
+  - { instrument: 'Brent Oil', level: '81.09', change: '−1.1%' }
+  - { instrument: 'US Dollar Index', level: '103.23', change: '+0.2%' }
+  - { instrument: 'FTSE MIB', level: '34,933.34', change: '+0.9%' }
+marketMovesNote: 'Illustrative placeholder data'
+chart:
+  type: event-track
+  id: gas
+  span: 52
+  heading: 'Storage as a share of capacity'
+  unit: '% full'
+  kind: pct0
+  ymin: 0
+  ymax: 110
+  baseline: 0
+  title: 'Storage fills to 95 per cent by week 26 and draws down to 31 per cent by the end of the withdrawal season.'
+  desc: >-
+    One line in percent of capacity across fifty-two weeks, with markers at the
+    start of injection, peak fill, a cold snap and the season low. A reference
+    line marks the five-year average season low at 34 per cent.
+  ticks: [[0, 'Apr'], [13, 'Jul'], [26, 'Oct'], [39, 'Jan'], [52, 'Mar']]
+  xLabel: weeks
+  xHead: 'Week'
+  peak: [26, 95]
+  peakLabel: 'peak fill'
+  markers: [[0, 'injection starts'], [26, 'peak fill'], [40, 'cold snap'], [52, 'season low']]
+  ref: [34, 'five-year average season low']
+  caption:
+    lead: 'The winter is decided in July.'
+    text: >-
+      A season that ends below the five-year average low has to be rationed by
+      price — and that is the version that reaches the inflation print, and the
+      rate decision after it.
+  points:
+    [[0, 34], [4, 45], [8, 56], [12, 66], [16, 76], [20, 85], [24, 92], [26, 95],
+     [30, 93], [34, 84], [38, 72], [40, 64], [44, 52], [48, 42], [52, 31]]
+sources:
+  - { title: 'GIE Aggregated Gas Storage Inventory', url: 'https://agsi.gie.eu/' }
+  - { title: 'IEA gas market report', url: 'https://www.iea.org/topics/natural-gas' }
+draft: false
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+> **Example issue.** Placeholder copy written to show the layout and the
+> taxonomy. The figures are illustrative. Delete the five example issues before
+> you publish for real.
+
+Every winter produces a run of stories about the gas price. Almost none of them
+are about the thing that decides whether the winter matters.
+
+Gas is not consumed from production; it is consumed from storage, refilled across
+the summer and drawn down across the winter. The spot price is a claim on the
+marginal molecule today. The storage level is a claim on how many molecules exist
+between now and March, and it is the second one that determines whether a cold
+February is an inconvenience or a crisis.
+
+## What moved
+
+Very little, which is the point. The front-month contract traded in a narrow
+range all summer while the injection season ran roughly nine percentage points
+behind its five-year norm.
+
+A quiet price alongside a deteriorating inventory path is not a contradiction.
+Injection demand is price-inelastic in the short run — storage operators refill
+because they are obliged to, not because the price is attractive — so a shortfall
+shows up as a quantity first and only becomes a price once the shortfall is large
+enough to threaten the withdrawal season.
+
+<IssueChart chart={frontmatter.chart} />
+
+## Why it moved
+
+The transmission from inventory to interest rates is short, and shorter than most
+people expect, because European gas sits directly in the consumer price index
+rather than at the end of a long industrial chain.
+
+A retail energy tariff is typically reset from a wholesale reference over a
+lagged window of several months. That means an autumn storage scare reaches the
+tariff — and therefore the headline inflation print — in the first quarter of the
+following year, arriving precisely when a central bank is deciding whether the
+previous year's disinflation was durable.
+
+This is why an energy story is so often really a rates story. The gas market
+moves the CPI through a fixed lag, and the fixed lag lands the shock in the
+middle of a policy meeting.
+
+## What to watch
+
+The **injection rate against the five-year band**, weekly, through the summer —
+not the price. Storage that is filling slowly in July has already decided
+something about February that the forward curve will not acknowledge until
+October.
+
+The specific level to watch is the end-of-injection fill. Above roughly ninety
+per cent, a cold winter is absorbed by inventory and the price barely responds.
+Below eighty, the same winter has to be rationed by price — and that is the
+version that reaches the inflation print, and the rate decision after it.

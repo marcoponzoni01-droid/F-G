@@ -1,0 +1,105 @@
+---
+# Copy this file to src/content/issues/YYYY-MM-DD-a-short-slug.mdx and fill it in.
+# The filename's slug becomes the URL: /issues/2026-08-02-a-short-slug
+# Files starting with an underscore are never published, so this one is safe here.
+
+title: 'Headline, under 120 characters'
+dek: 'One sentence under the title. What happened, and why it costs someone money.'
+
+# Week ending. This single field decides which issue is "current" — the newest
+# date wins and everything older falls into the archive automatically.
+date: 2026-08-02
+issueNumber: 6
+
+# Must match the lists in src/config/taxonomy.ts exactly. A typo fails the
+# build with a message naming the file and the allowed values.
+regions: [Global]
+assets: [Equities]
+eventType: conflict
+
+tags: [free-text, no-validation-here]
+
+summary: >-
+  One paragraph. Reused on cards, in the RSS feed and as the page's meta
+  description, so write it to stand alone.
+
+# The standing panel: the same instruments every week, so consecutive issues read
+# as a series. `level` is the close as it should publish; `note` adds a
+# story-specific mover. Delete the whole block for a quiet week.
+marketMoves:
+  - { instrument: 'S&P 500', level: '6,412.30', change: '+0.4%' }
+  - { instrument: 'NASDAQ', level: '21,880.15', change: '+0.9%' }
+  - { instrument: 'Brent Oil', level: '84.20', change: '+2.1%', note: 'risk premium, not lost supply' }
+  - { instrument: 'US Dollar Index', level: '103.85', change: '−0.3%' }
+  - { instrument: 'FTSE MIB', level: '35,140.00', change: '−0.7%' }
+marketMovesNote: 'Close on the Friday. Source: exchange data.'
+
+# ── The chart ─────────────────────────────────────────────────────────────
+# Optional, and validated: `type` selects which other fields are required, so a
+# malformed spec fails `npm run check` with the missing field named. Three types,
+# and a fourth should have to earn its place — see src/lib/charts/.
+#
+#   transmission-lag  small multiples on a shared time axis, for sequence
+#                     (needs: panels[], bracketLabel)
+#   divergence        two series in one unit on one axis, for a spread
+#                     (needs: series[2], gapAt, gapLabel; set crossing: true if
+#                      the two lines swap order)
+#   event-track       one series against a calendar, for timing
+#                     (needs: points, peak, markers[]; optional ref)
+#
+# `title` is the sentence the chart makes and becomes its accessible name;
+# `desc` is what a reader who cannot see it would need described. Copy a working
+# example out of one of the published issues rather than starting from nothing.
+#
+# chart:
+#   type: event-track
+#   id: short-slug
+#   span: 52
+#   heading: 'What is plotted'
+#   unit: '% of capacity'
+#   kind: pct0            # pct2 | pct1 | pct0 | index | bp
+#   ymin: 0
+#   ymax: 110
+#   baseline: 0
+#   xLabel: weeks         # weeks | weeks-then-months | months | quarters
+#   xHead: 'Week'
+#   title: 'The one sentence this chart is making.'
+#   desc: 'What the shape is, for a reader who cannot see it.'
+#   ticks: [[0, 'Apr'], [26, 'Oct'], [52, 'Mar']]
+#   peak: [26, 95]
+#   peakLabel: 'peak fill'
+#   markers: [[0, 'injection starts'], [26, 'peak fill'], [52, 'season low']]
+#   caption:
+#     lead: 'The claim, in a few words.'
+#     text: 'The evidence for it.'
+#   points: [[0, 34], [26, 95], [52, 31]]
+
+sources:
+  - { title: 'Name of source', url: 'https://example.com' }
+
+# true keeps it visible in `npm run dev` but out of production builds.
+draft: true
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+Open with the event in a sentence or two. Assume the reader saw the headline and
+wants the financial consequence.
+
+## What moved
+
+The price action, and whether it reflects a genuine change in supply, demand or
+risk — or just positioning.
+
+## Why it moved
+
+The transmission mechanism. This is the part readers cannot get from a news wire.
+
+{/* Put the chart immediately after the paragraph making the claim it
+    illustrates — not in a fixed slot. Delete this line if the issue has no
+    chart, and delete the import above with it. */}
+<IssueChart chart={frontmatter.chart} />
+
+## What to watch
+
+The specific, checkable thing that would confirm or refute the read.

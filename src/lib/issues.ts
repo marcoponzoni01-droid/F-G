@@ -70,6 +70,21 @@ export function formatDateShort(date: Date): string {
 	}).format(date);
 }
 
+/**
+ * The market panel's as-of label, e.g. "Week to 26 Jul".
+ *
+ * Derived from the issue date rather than stored, so it can never disagree with
+ * the issue it sits in.
+ */
+export function formatWeekOf(date: Date): string {
+	const when = new Intl.DateTimeFormat('en-GB', {
+		day: 'numeric',
+		month: 'short',
+		timeZone: 'UTC',
+	}).format(date);
+	return `Week to ${when}`;
+}
+
 /** Machine-readable YYYY-MM-DD, for <time datetime> and filter comparisons. */
 export function isoDate(date: Date): string {
 	return date.toISOString().slice(0, 10);

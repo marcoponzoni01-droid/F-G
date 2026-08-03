@@ -1,0 +1,114 @@
+---
+title: 'The substitution clock: what export controls actually buy'
+dek: 'A control does not deny a capability. It prices delay — and the market almost always misprices how long the delay lasts.'
+date: 2026-07-12
+issueNumber: 3
+regions: [China, United States, Japan & Korea]
+assets: [Equities, Commodities]
+eventType: trade-policy
+tags: [export-controls, semiconductors, substitution, industrial-policy]
+summary: >-
+  An export control buys time, not denial. The controlled input gets designed
+  around; the only question is whether that takes eighteen months or six years.
+  Equities price the announcement as though it were permanent, and the
+  substitution curve spends the next two years proving otherwise.
+marketMoves:
+  - { instrument: 'S&P 500', level: '6,399.55', change: '+0.9%' }
+  - { instrument: 'NASDAQ', level: '21,620.12', change: '+1.2%' }
+  - { instrument: 'Brent Oil', level: '81.33', change: '−0.5%' }
+  - { instrument: 'US Dollar Index', level: '103.54', change: '+0.4%' }
+  - { instrument: 'FTSE MIB', level: '35,211.66', change: '+1.1%' }
+marketMovesNote: 'Illustrative placeholder data'
+chart:
+  type: divergence
+  id: expc
+  span: 8
+  heading: 'Share of the controlled input, by origin'
+  unit: '% of units shipped'
+  kind: pct0
+  ymin: 0
+  ymax: 100
+  baseline: 0
+  title: 'Domestic share of the controlled input crosses imported share at quarter five, and is nearly double it by quarter eight.'
+  desc: >-
+    Two lines in percent of units shipped. Imported share falls from 92 to 32
+    percent across eight quarters while domestic share rises from 8 to 68, the
+    two crossing at quarter five.
+  ticks: [[0, 'control'], [2, 'Q2'], [4, 'Q4'], [6, 'Q6'], [8, 'Q8']]
+  xLabel: quarters
+  xHead: 'Quarter'
+  crossing: true
+  gapAt: 1
+  gapLabel: 'domestic overtakes here'
+  caption:
+    lead: 'A control buys quarters, not denial.'
+    text: >-
+      Domestic share overtakes imported share five quarters in — the shaded
+      window is everything the measure actually bought, and it closes on a
+      schedule set by qualification, not by policy.
+  series:
+    - name: 'Imported'
+      points: [[0, 92], [1, 88], [2, 80], [3, 70], [4, 60], [5, 50], [6, 42], [7, 36], [8, 32]]
+    - name: 'Domestic'
+      points: [[0, 8], [1, 12], [2, 20], [3, 30], [4, 40], [5, 50], [6, 58], [7, 64], [8, 68]]
+sources:
+  - { title: 'WTO trade policy review database', url: 'https://www.wto.org/english/tratop_e/tpr_e/tpr_e.htm' }
+  - { title: 'OECD export controls and industrial policy', url: 'https://www.oecd.org/trade/' }
+draft: false
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+> **Example issue.** Placeholder copy written to show the layout and the
+> taxonomy. The figures are illustrative. Delete the five example issues before
+> you publish for real.
+
+An export control is usually reported as a denial. It is better understood as a
+tax on time.
+
+Almost nothing on a control list is physically unobtainable. It is obtainable
+more slowly, from fewer suppliers, at worse yields, and at a price that includes
+the cost of proving provenance. The controlled party does not stop; it
+substitutes. So the only question that has ever mattered is how long substitution
+takes — and that is the one number nobody puts in the announcement.
+
+## What moved
+
+Equities repriced on the announcement as though the denial were permanent.
+Suppliers of the controlled input lost a quarter of their market capitalisation
+in a week; the domestic champions expected to replace them gained roughly as
+much.
+
+Both moves assumed the same thing — that the control holds. The first assumed it
+holds against the exporter's revenue; the second assumed it holds long enough for
+a domestic replacement to reach volume. They cannot both be right for long,
+because the second is a statement that substitution is fast and the first is a
+statement that it is slow.
+
+## Why it moved
+
+The substitution curve is slow at the start and then abruptly is not, which is
+exactly the shape that defeats linear extrapolation.
+
+For the first several quarters the domestic share barely moves, because the
+constraint is not willingness or capital but qualification: a customer has to
+re-test the part, re-certify the process and accept the yield loss. That work is
+invisible in trade data. Then qualification completes across several customers at
+once, and share moves in a step rather than a drift.
+
+<IssueChart chart={frontmatter.chart} />
+
+This is why a control looks devastating for four quarters and porous by the
+eighth. Nothing changed about the policy in between. What changed is that the
+qualification pipeline emptied onto the market.
+
+## What to watch
+
+Not export volumes, which are noisy and easily rerouted, but **qualification
+announcements** — the unglamorous customer disclosures that a second source has
+been approved for production. They lead the share data by two to three quarters
+and they are published, because customers have to tell their own investors.
+
+When qualifications cluster while the price premium on the controlled input is
+still elevated, the premium is being paid for a denial that has already stopped
+being one.

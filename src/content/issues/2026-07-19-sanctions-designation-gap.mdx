@@ -2,7 +2,7 @@
 title: 'The designation gap: why sanctions price in before they bite'
 dek: 'The market moves on the announcement. The economy moves on the enforcement. The distance between those two dates is where the mispricing lives.'
 date: 2026-07-19
-issueNumber: 1
+issueNumber: 4
 regions: [Russia & CIS, United States, Europe]
 assets: [Sovereign Debt, FX, Credit, Commodities]
 eventType: sanctions
@@ -13,17 +13,54 @@ summary: >-
   economy responds to the third, and the wind-down period in between is a
   structurally under-analysed window.
 marketMoves:
-  - { instrument: 'Designated-sector credit', change: '-18%', note: 'illustrative — repriced on announcement' }
-  - { instrument: 'Local currency', change: '-11%', note: 'before capital controls, not after' }
+  - { instrument: 'S&P 500', level: '6,386.75', change: '−0.2%' }
+  - { instrument: 'NASDAQ', level: '21,684.99', change: '+0.3%' }
+  - { instrument: 'Brent Oil', level: '82.47', change: '+1.4%' }
+  - { instrument: 'US Dollar Index', level: '104.16', change: '+0.6%' }
+  - { instrument: 'FTSE MIB', level: '35,387.71', change: '+0.5%' }
+marketMovesNote: 'Illustrative placeholder data'
+chart:
+  type: divergence
+  id: sanc
+  span: 12
+  heading: 'Designated grade vs its unsanctioned equivalent'
+  unit: 'index, 100 at designation'
+  kind: index
+  ymin: 78
+  ymax: 106
+  baseline: 100
+  title: 'The discount on designated barrels narrows from 18 points to 3 over twelve months as enforcement decays.'
+  desc: >-
+    Two lines in the same index unit. The unsanctioned equivalent stays near 100
+    throughout. The designated grade falls to 82 on designation and then climbs
+    steadily back, closing the gap between them.
+  ticks: [[0, 'designation'], [3, 'mo 3'], [6, 'mo 6'], [9, 'mo 9'], [12, 'mo 12']]
+  xLabel: months
+  xHead: 'Month'
+  gapAt: 1
+  gapLabel: '18-point discount'
+  caption:
+    lead: 'The discount is the enforcement.'
+    text: >-
+      Designated barrels priced 18 points below their unsanctioned equivalent in
+      the first month and three points below by the twelfth — the measure
+      decaying without anything being repealed.
+  series:
+    - name: 'Unsanctioned equivalent'
+      points: [[0, 100], [1, 100], [2, 101], [3, 100], [4, 99], [6, 100], [8, 101], [10, 100], [12, 101]]
+    - name: 'Designated grade'
+      points: [[0, 100], [1, 82], [2, 83], [3, 85], [4, 87], [6, 90], [8, 93], [10, 96], [12, 98]]
 sources:
   - { title: 'OFAC Specially Designated Nationals list', url: 'https://ofac.treasury.gov/specially-designated-nationals-and-blocked-persons-list-sdn-human-readable-lists' }
   - { title: 'EU consolidated sanctions list', url: 'https://www.sanctionsmap.eu/' }
 draft: false
 ---
 
+import IssueChart from '../../components/IssueChart.astro';
+
 > **Example issue.** Placeholder copy written to show the layout and the
-> taxonomy. The figures are illustrative. Delete this file and
-> `2026-07-26-red-sea-reroutes.md` before you publish for real.
+> taxonomy. The figures are illustrative. Delete the five example issues before
+> you publish for real.
 
 Sanctions have three dates, and almost every piece of commentary collapses them
 into one.
@@ -64,6 +101,8 @@ will is soft, the written perimeter can be dramatically wider than the real one.
 Trade reroutes through intermediary jurisdictions, price differentials compress
 back toward pre-sanction levels, and the measure becomes a tax on transaction
 complexity rather than a genuine prohibition.
+
+<IssueChart chart={frontmatter.chart} />
 
 ## What to watch
 

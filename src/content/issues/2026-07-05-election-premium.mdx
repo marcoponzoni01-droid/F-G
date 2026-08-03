@@ -1,0 +1,108 @@
+---
+title: 'The election premium is paid before the vote'
+dek: 'Sovereign spreads widen through a campaign and compress on the result — very often regardless of who wins.'
+date: 2026-07-05
+issueNumber: 2
+regions: [Latin America, Global]
+assets: [Sovereign Debt, FX, USD]
+eventType: elections
+tags: [campaign-calendar, risk-premium, local-currency, polling]
+summary: >-
+  What a campaign prices is uncertainty, not policy. Spreads widen as the field
+  stays open and compress once it narrows, which means the compression frequently
+  begins before the count finishes and has little to do with the winner's
+  programme.
+marketMoves:
+  - { instrument: 'S&P 500', level: '6,342.47', change: '−0.4%' }
+  - { instrument: 'NASDAQ', level: '21,363.76', change: '−0.7%' }
+  - { instrument: 'Brent Oil', level: '81.74', change: '+0.8%' }
+  - { instrument: 'US Dollar Index', level: '103.13', change: '−0.1%' }
+  - { instrument: 'FTSE MIB', level: '34,828.54', change: '−0.3%' }
+marketMovesNote: 'Illustrative placeholder data'
+chart:
+  type: event-track
+  id: elec
+  span: 28
+  heading: 'Sovereign spread through the campaign'
+  unit: 'basis points over the benchmark'
+  kind: bp
+  ymin: 180
+  ymax: 440
+  baseline: 180
+  title: 'The sovereign spread peaks at the first round and compresses before the result is declared.'
+  desc: >-
+    One line in basis points across twenty-eight weeks of a campaign, with
+    markers at the campaign opening, the first round, the result and the
+    inauguration. The peak of 405 basis points falls on the first round, six
+    weeks before the result.
+  ticks: [[0, 'wk 0'], [8, 'wk 8'], [16, 'wk 16'], [22, 'wk 22'], [28, 'wk 28']]
+  xLabel: weeks
+  xHead: 'Campaign week'
+  peak: [16, 405]
+  peakLabel: 'first round'
+  markers: [[2, 'campaign opens'], [16, 'first round'], [22, 'result'], [28, 'inauguration']]
+  caption:
+    lead: 'The turn comes at the first round, not the result.'
+    text: >-
+      The spread gives back three-quarters of its widening before the count
+      finishes — what was priced was the width of the field, not the winner's
+      programme.
+  points:
+    [[0, 210], [2, 218], [4, 232], [6, 258], [8, 292], [10, 330], [12, 368], [14, 392], [16, 405],
+     [18, 396], [20, 372], [22, 336], [24, 306], [26, 290], [28, 282]]
+sources:
+  - { title: 'IMF sovereign debt statistics', url: 'https://www.imf.org/en/Data' }
+  - { title: 'BIS debt securities statistics', url: 'https://www.bis.org/statistics/secstats.htm' }
+draft: false
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+> **Example issue.** Placeholder copy written to show the layout and the
+> taxonomy. The figures are illustrative. Delete the five example issues before
+> you publish for real.
+
+The standard account of an election trade is that the market prefers one
+candidate and reprices when that candidate wins. The data rarely cooperates.
+
+What reprices most reliably is not the identity of the winner but the *width of
+the distribution*. A two-way race with a five-point gap carries a smaller premium
+than a four-way race with a three-point gap, whatever the candidates propose. The
+premium is paid for not knowing, and it is refunded when the not-knowing ends.
+
+## What moved
+
+The spread widened by nearly two hundred basis points across the campaign and
+gave back three-quarters of that within a month — with the turn arriving at the
+first round, not at the final result.
+
+That timing is the whole tell. If the market were pricing a programme, the move
+would come when the programme became certain. It came instead when the *field*
+narrowed from four plausible outcomes to two, which is a statement about variance
+rather than about policy.
+
+<IssueChart chart={frontmatter.chart} />
+
+## Why it moved
+
+Mandates, not opinions, do most of the work here.
+
+A fund with a volatility budget reduces exposure as realised and implied
+volatility rise, irrespective of its view on the election. Index rebalancing is
+mechanical. And local banks, which hold the largest share of most emerging
+sovereign curves, shorten duration into political uncertainty because their
+regulators ask them to. None of that selling is a forecast; all of it is unwound
+automatically once volatility falls.
+
+The currency behaves differently, and this is where the two get conflated. The
+spread prices uncertainty and mean-reverts. The currency prices the expected
+policy mix and often does not come back, because a genuine change in the fiscal
+path is a change in the level, not the variance.
+
+## What to watch
+
+The gap between the **spread compression date** and the **inauguration date**.
+When the spread has already retraced most of its campaign widening before the new
+government takes office, the market has priced the end of uncertainty and not the
+content of the programme — which means the actual fiscal announcements are still
+ahead of it, and they are not in the price.

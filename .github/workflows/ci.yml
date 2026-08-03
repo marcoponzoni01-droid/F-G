@@ -40,6 +40,12 @@ jobs:
       - name: Check internal links
         run: npm run check:links
 
+      # Numbering, charts, the market panel's week-to-week arithmetic, the
+      # prev/next chain and the archive facets — the things that stay silently
+      # wrong rather than failing the build.
+      - name: Check content invariants
+        run: npm run check:content
+
       # Proves the site still works when served from a subpath, so choosing
       # GitHub Pages later stays a one-variable change rather than a refactor.
       - name: Build for a subpath (host-portability check)

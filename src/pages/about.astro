@@ -6,12 +6,23 @@ import { href } from '../lib/paths';
 import { site } from '../config/site';
 ---
 
-<Base path="/about" title="About" description={site.description}>
+<Base path="/about" title="About Us" description={site.description}>
 	<div class="mx-auto max-w-2xl px-5 sm:px-8 py-14">
-		<p class="label">About</p>
+		<p class="label">About Us</p>
 		<h1 class="mt-3 font-serif text-3xl sm:text-4xl leading-tight">{site.tagline}</h1>
 
 		<div class="prose mt-8">
+			{/* Opens with what used to be the homepage's "what this is" band. A
+			    reader who wants the premise comes here for it; the homepage owes a
+			    returning reader this week's issue instead. */}
+			<p>
+				<strong>{site.name}</strong> covers one question: when a geopolitical event happens, who pays
+				for it, and through which mechanism?
+			</p>
+			<p>
+				Not the politics — the transmission. Which price moves first, which moves late, and where the
+				gap between the two is wide enough to matter.
+			</p>
 			<p>
 				Most coverage of geopolitics stops at the event. Most coverage of markets starts at the
 				price. {site.name} is about the part in between — the mechanism by which a decision taken in
@@ -41,7 +52,8 @@ import { site } from '../config/site';
 			</p>
 			<p>
 				The archive is free, has no account wall, and is searchable by full text as well as by
-				region, asset class, event type and date.
+				region, asset class, event type and date — so the newsletter is not something you have to
+				read the week it arrives.
 			</p>
 
 			<h2>Method, and its limits</h2>

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './chart.css';
 
 /*
  * Dark editorial default, light mode via prefers-color-scheme.
@@ -126,6 +127,13 @@
 		font-size: 1.0625rem;
 		line-height: 1.75;
 		color: var(--ink);
+
+		/* The article is a grid item, and a grid item defaults to min-width:auto —
+		   so it grows to fit its widest child instead of letting that child
+		   scroll. Any wide block (a data table, a long code sample) would push the
+		   whole page sideways on a phone rather than scrolling inside its own
+		   container. This is what makes overflow-x:auto work further in. */
+		min-width: 0;
 	}
 
 	.prose > * + * {

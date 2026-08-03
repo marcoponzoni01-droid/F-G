@@ -1,0 +1,225 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   ISSUE CHART — the one place styled semantically rather than with utilities.
+
+   SVG internals (stroke widths, markers, label sizing) have no utility-class
+   equivalent, and a named block is what a design pass can actually restyle.
+   Marks carry --chart-accent; a reference series is neutral ink; all text
+   wears ink tokens, never the data hue.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Defaults to the publication's brass so charts belong to the articles they
+     sit in. The dataviz lightness band for dark mode would prefer #b3901d;
+     that band governs categorical palettes, and these charts decode nothing by
+     colour — one accent, with any second series in neutral ink. Swap here for
+     strict conformance. */
+  --chart-accent: var(--accent);
+}
+
+.issue-chart {
+  position: relative;
+  min-width: 0;
+  margin: 2rem 0;
+  padding: 1.25rem 1.1rem 1rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.issue-chart .ic-svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* Marks */
+.ic-line {
+  fill: none;
+  stroke: var(--chart-accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* A second series is emphasis, not a palette: the subject keeps the accent,
+   the reference recedes to neutral ink. */
+.ic-line-ref {
+  fill: none;
+  stroke: var(--ink-faint);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.ic-area { fill: var(--chart-accent); opacity: 0.1; stroke: none; }
+.ic-gap { fill: var(--chart-accent); opacity: 0.09; stroke: none; }
+
+.ic-peak { fill: var(--chart-accent); }
+.ic-end-ref { fill: var(--ink-faint); }
+.ic-peak-ring,
+.ic-end-ring { fill: var(--surface); }
+
+/* Chrome — hairline, solid, recessive */
+.ic-base,
+.ic-axis,
+.ic-tick,
+.ic-shock { stroke: var(--line-strong); stroke-width: 1; }
+
+.ic-marker-rule { stroke: var(--line); stroke-width: 1; }
+.ic-marker { fill: var(--line-strong); }
+.ic-ref { stroke: var(--ink-faint); stroke-width: 1; opacity: 0.55; }
+.ic-gap-rule { stroke: var(--chart-accent); stroke-width: 1; }
+.ic-cross { fill: var(--chart-accent); }
+.ic-cross-ring { fill: var(--surface); }
+.ic-bracket { fill: none; stroke: var(--chart-accent); stroke-width: 1; }
+
+/* Legend keys mirror the mark: a line for a line. */
+.ic-legend { pointer-events: none; }
+.ic-key-ref { stroke: var(--ink-faint); stroke-width: 2; stroke-linecap: round; }
+.ic-key-main { stroke: var(--chart-accent); stroke-width: 2; stroke-linecap: round; }
+
+/* Text — ink tokens only, never the data colour */
+.issue-chart text { font-family: var(--font-sans); }
+.ic-heading,
+.ic-peak-label { font-family: var(--font-mono); }
+
+.ic-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  fill: var(--ink);
+}
+
+.ic-unit,
+.ic-tick-label,
+.ic-ref-label,
+.ic-marker-label,
+.ic-legend-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  fill: var(--ink-faint);
+}
+
+.ic-legend-label { font-size: 10.5px; fill: var(--ink-muted); }
+.ic-marker-label { fill: var(--ink-muted); }
+
+.ic-start,
+.ic-end-label,
+.ic-gap-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ic-end-main { fill: var(--ink); }
+.ic-gap-label { fill: var(--ink); font-size: 10px; letter-spacing: 0.05em; }
+
+.ic-peak-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  fill: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.ic-peak-when {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  fill: var(--ink-muted);
+}
+
+.ic-bracket-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  fill: var(--ink-muted);
+}
+
+/* Hover layer — enhancement only; every value is in the table below. */
+.ic-crosshair { stroke: var(--ink-faint); stroke-width: 1; }
+.ic-hover[hidden] { display: none; }
+
+.ic-tooltip {
+  position: absolute;
+  z-index: 3;
+  min-width: 11rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  pointer-events: none;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+}
+
+.ic-tooltip[hidden] { display: none; }
+
+.ic-tooltip .tt-when {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.ic-tooltip dl { display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 0.5rem; margin-top: 0.4rem; }
+.ic-tooltip dt { color: var(--ink-muted); }
+.ic-tooltip dd {
+  margin: 0;
+  text-align: right;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.issue-chart figcaption {
+  margin-top: 0.9rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+
+.issue-chart figcaption strong { color: var(--ink); font-weight: 600; }
+
+.ic-illustrative {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* Table view */
+.ic-table { margin-top: 0.75rem; }
+
+.ic-table summary {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.ic-table summary:hover { color: var(--ink); }
+.ic-table-scroll { overflow-x: auto; margin-top: 0.6rem; }
+
+.ic-table table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+.ic-table caption {
+  caption-side: bottom;
+  padding-top: 0.5rem;
+  color: var(--ink-faint);
+  font-size: 0.6875rem;
+  text-align: left;
+}
+.ic-table th,
+.ic-table td { padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.ic-table thead th { color: var(--ink-muted); font-weight: 600; vertical-align: bottom; font-size: 0.75rem; }
+.ic-table thead th span { display: block; font-weight: 400; color: var(--ink-faint); font-size: 0.6875rem; }
+.ic-table tbody th { color: var(--ink-muted); font-weight: 400; text-align: left; font-family: var(--font-mono); }
+.ic-table td { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+
+@media (max-width: 30rem) {
+  .issue-chart { padding: 1rem 0.75rem 0.85rem; }
+}

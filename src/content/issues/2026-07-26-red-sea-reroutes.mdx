@@ -2,7 +2,7 @@
 title: 'Red Sea reroutes and the long tail of a freight shock'
 dek: 'When carriers abandon a canal, the bill does not arrive at the port. It arrives in the inflation print, two quarters later.'
 date: 2026-07-26
-issueNumber: 2
+issueNumber: 5
 regions: [Middle East, Europe, Global]
 assets: [Freight, Brent, EUR]
 eventType: supply-chain
@@ -13,18 +13,75 @@ summary: >-
   immediately, the war-risk insurance premium reprices faster, and the consumer
   price index feels it last — which is exactly why markets keep mistiming it.
 marketMoves:
-  - { instrument: 'Asia–Europe container rate', change: '+120%', note: 'illustrative — capacity, not demand' }
-  - { instrument: 'Brent', change: '+2.1%', note: 'flows rerouted, not lost' }
-  - { instrument: 'War-risk premium', change: '0.02% → 0.7% of hull value' }
+  - { instrument: 'S&P 500', level: '6,412.30', change: '+0.4%' }
+  - { instrument: 'NASDAQ', level: '21,880.15', change: '+0.9%' }
+  - { instrument: 'Brent Oil', level: '84.20', change: '+2.1%' }
+  - { instrument: 'US Dollar Index', level: '103.85', change: '−0.3%' }
+  - { instrument: 'FTSE MIB', level: '35,140.00', change: '−0.7%' }
+marketMovesNote: 'Illustrative placeholder data'
+chart:
+  type: transmission-lag
+  id: lag
+  span: 39
+  title: 'One shock, three clocks: war-risk premium peaks in week 1, container freight in week 4, core goods inflation in month 7.'
+  desc: >-
+    Three stacked panels sharing a timeline from week 0 to month 9. Each plots
+    one series on its own scale. The peaks move steadily rightward, about seven
+    months from the insurance repricing to the consumer price response.
+  ticks: [[0, 'wk 0'], [4, 'mo 1'], [13, 'mo 3'], [22, 'mo 5'], [30, 'mo 7'], [39, 'mo 9']]
+  xLabel: weeks-then-months
+  bracketLabel: '≈ 7 months from premium to price'
+  caption:
+    lead: 'One shock, three clocks.'
+    text: >-
+      The war-risk premium peaks in week 1, the container rate in week 4, core
+      goods inflation only in month 7 — the same event, reaching each price on
+      its own delay.
+  panels:
+    - key: war-risk
+      title: 'War-risk premium'
+      unit: '% of hull value'
+      kind: pct2
+      baseline: 0
+      ymin: 0
+      ymax: 1.0
+      peak: [1, 0.7]
+      peakLabel: 'week 1'
+      points:
+        [[0, 0.02], [1, 0.7], [2, 0.62], [4, 0.48], [8, 0.34], [13, 0.22], [17, 0.18], [26, 0.12], [39, 0.08]]
+    - key: freight
+      title: 'Asia–Europe container rate'
+      unit: 'index, week 0 = 100'
+      kind: index
+      baseline: 100
+      ymin: 90
+      ymax: 275
+      peak: [4, 220]
+      peakLabel: 'week 4'
+      points:
+        [[0, 100], [2, 165], [4, 220], [6, 215], [8, 205], [13, 180], [17, 168], [26, 145], [39, 128]]
+    - key: cpi
+      title: 'Euro-area core goods CPI'
+      unit: '% year on year'
+      kind: pct1
+      baseline: 0
+      ymin: 0
+      ymax: 2.3
+      peak: [30, 1.6]
+      peakLabel: 'month 7'
+      points:
+        [[0, 0.6], [4, 0.6], [9, 0.7], [13, 0.9], [17, 1.2], [22, 1.45], [30, 1.6], [35, 1.55], [39, 1.3]]
 sources:
   - { title: 'IMF PortWatch — daily chokepoint transit data', url: 'https://portwatch.imf.org/' }
   - { title: 'UNCTAD Review of Maritime Transport', url: 'https://unctad.org/publication/review-maritime-transport-2024' }
 draft: false
 ---
 
-> **Example issue.** This is placeholder copy written to show the layout, the
-> taxonomy and the market-moves table. The figures are illustrative. Delete this
-> file and `2026-07-19-sanctions-designation-gap.md` before you publish for real.
+import IssueChart from '../../components/IssueChart.astro';
+
+> **Example issue.** Placeholder copy written to show the layout and the
+> taxonomy. The figures are illustrative. Delete the five example issues before
+> you publish for real.
 
 A canal closure is rarely a supply shock. It is a *distance* shock, and the two
 behave differently in a portfolio.
@@ -61,6 +118,8 @@ four and month eight, and only for goods contracted after the spike. This is why
 a dramatic freight chart in January and a barely-moved core goods CPI in March
 are not a contradiction — they are the same event, observed at different points
 in the pipeline.
+
+<IssueChart chart={frontmatter.chart} />
 
 Energy is the exception that proves the point. Crude reroutes as easily as
 containers do, so the barrel is not lost and the price move is modest. But

@@ -1,17 +1,30 @@
 ---
 interface Move {
 	instrument: string;
+	level?: string;
 	change: string;
 	note?: string;
 }
 
 interface Props {
 	moves: readonly Move[];
+	/** Shown top-right, e.g. "Week to 26 Jul" — the panel's as-of date. */
+	period?: string;
+	/** Provenance or caveat, set faint under the last row. */
+	note?: string;
 	/** `compact` drops the notes column, for the homepage hero. */
 	variant?: 'full' | 'compact';
 }
 
-const { moves, variant = 'full' } = Astro.props;
+const { moves, period, note, variant = 'full' } = Astro.props;
+
+/**
+ * The same instruments every week read as a series; a different set each week
+ * reads as five unrelated facts. So the standing panel is a fixed three-column
+ * grid — instrument, level, change — and only falls back to the older
+ * two-column form when an issue quotes deltas without levels.
+ */
+const hasLevels = moves.some((move) => move.level);
 
 /** Colour the delta by sign; anything unsigned stays neutral. */
 function tone(change: string): string {
@@ -24,23 +37,54 @@ function tone(change: string): string {
 
 {
 	moves.length > 0 && (
-		<section aria-label="Market moves" class="border border-line bg-surface">
-			<h2 class="label px-4 pt-3 pb-2 border-b border-line">Market moves</h2>
+		<section aria-label="Market moves" class="border border-line bg-surface" data-market-moves>
+			<div class="flex items-baseline justify-between gap-3 px-4 pt-3 pb-2 border-b border-line">
+				<h2 class="label">Market moves</h2>
+				{period && <span class="label">{period}</span>}
+			</div>
+
 			<ul class="divide-y divide-line">
 				{moves.map((move) => (
-					<li class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2.5">
+					<li
+						class:list={[
+							'px-4 py-2.5',
+							hasLevels
+								? 'grid grid-cols-[1fr_auto_auto] items-baseline gap-x-3'
+								: 'flex flex-wrap items-baseline gap-x-3 gap-y-1',
+						]}
+						data-move
+					>
 						<span class="text-sm">{move.instrument}</span>
-						<span class:list={['font-mono text-sm tabular-nums', tone(move.change)]}>
+						{hasLevels && (
+							<span class="font-mono text-sm tabular-nums text-ink-muted" data-level>
+								{move.level}
+							</span>
+						)}
+						<span
+							class:list={[
+								'font-mono text-sm tabular-nums',
+								hasLevels && 'w-14 text-right',
+								tone(move.change),
+							]}
+							data-change
+						>
 							{move.change}
 						</span>
 						{variant === 'full' && move.note && (
-							<span class="w-full sm:w-auto sm:ml-auto text-xs text-ink-faint sm:text-right">
+							<span
+								class:list={[
+									'text-xs text-ink-faint',
+									hasLevels ? 'col-span-full' : 'w-full sm:w-auto sm:ml-auto sm:text-right',
+								]}
+							>
 								{move.note}
 							</span>
 						)}
 					</li>
 				))}
 			</ul>
+
+			{note && <p class="label px-4 py-2 border-t border-line">{note}</p>}
 		</section>
 	)
 }

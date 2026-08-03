@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -15,7 +16,11 @@ export default defineConfig({
 	site: SITE_URL,
 	base: BASE_PATH,
 	trailingSlash: 'ignore',
-	integrations: [sitemap()],
+	// MDX is here for one reason: an issue's chart belongs at a specific point in
+	// the argument, not in a fixed slot the layout chooses. Everything else in an
+	// issue is ordinary Markdown, and `extendMarkdownConfig` (the default) means
+	// .mdx files inherit the settings below rather than needing their own.
+	integrations: [mdx(), sitemap()],
 	markdown: {
 		shikiConfig: { theme: 'github-dark-dimmed', wrap: true },
 	},
