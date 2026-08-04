@@ -180,13 +180,16 @@
 
 .issue-chart figcaption strong { color: var(--ink); font-weight: 600; }
 
+/* Provenance. Set as a source note rather than a badge: it carries a sentence
+   naming real series on a historical chart, and uppercase mono at that length
+   shouts. Faint and small still reads as metadata. */
 .ic-illustrative {
-  display: inline-block;
-  margin-left: 0.35rem;
+  display: block;
+  margin-top: 0.4rem;
   font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  line-height: 1.45;
   color: var(--ink-faint);
 }
 

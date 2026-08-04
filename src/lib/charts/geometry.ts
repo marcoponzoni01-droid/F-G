@@ -25,6 +25,8 @@ const FORMATTERS: Record<ValueKind, (v: number) => string> = {
 	pct0: (v) => `${v.toFixed(0)}%`,
 	index: (v) => v.toFixed(0),
 	bp: (v) => `${v.toFixed(0)}bp`,
+	num2: (v) => v.toFixed(2),
+	num1: (v) => v.toFixed(1),
 };
 
 export function formatterFor(kind: ValueKind): (v: number) => string {
@@ -39,8 +41,17 @@ const X_LABELS: Record<XLabelStyle, (x: number) => string> = {
 	'weeks-then-months': (x) => (x < 9 ? `week ${x}` : `month ${Math.round(x / 4.33)}`),
 };
 
-export function xLabeller(style: XLabelStyle): (x: number) => string {
-	return X_LABELS[style];
+/**
+ * How to name an x position: the explicit calendar where one is given, the
+ * named style otherwise.
+ */
+export function xLabeller(
+	style: XLabelStyle,
+	explicit?: readonly (readonly [number, string])[],
+): (x: number) => string {
+	if (!explicit?.length) return X_LABELS[style];
+	const named = new Map(explicit.map(([x, label]) => [x, label]));
+	return (x) => named.get(x) ?? X_LABELS[style](x);
 }
 
 /** Linear read of a series between its samples. */

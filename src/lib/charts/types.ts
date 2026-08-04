@@ -20,8 +20,15 @@ export type Point = z.infer<typeof point>;
 /** [x, label] — an axis tick or, on an event-track, a dated marker. */
 export const labelledX = z.tuple([z.number(), z.string()]);
 
-/** How a value is written out, in the SVG and in the numbers table alike. */
-export const valueKind = z.enum(['pct2', 'pct1', 'pct0', 'index', 'bp']);
+/**
+ * How a value is written out, in the SVG and in the numbers table alike.
+ *
+ * `num2` and `num1` are for a quantity whose unit is stated in the panel
+ * heading rather than glued to every number — a price per barrel, an exchange
+ * rate. The unit belongs in one place, not repeated fourteen times down a
+ * column.
+ */
+export const valueKind = z.enum(['pct2', 'pct1', 'pct0', 'index', 'bp', 'num2', 'num1']);
 export type ValueKind = z.infer<typeof valueKind>;
 
 /**
@@ -48,6 +55,15 @@ const common = {
 		.string()
 		.min(1)
 		.regex(/^[a-z0-9-]+$/, 'lowercase letters, digits and hyphens only'),
+	/**
+	 * Where the numbers come from, shown under the chart and in the table caption.
+	 *
+	 * Omit it and the chart is labelled illustrative — which is the safe default,
+	 * because an unsourced chart of a real event is worse than no chart. Set it on
+	 * anything drawn from published data and name the series, not just the
+	 * institution, so a reader can go and check.
+	 */
+	provenance: z.string().min(1).optional(),
 	/** Highest x on the axis. Fixes the horizontal scale for every series. */
 	span: z.number().positive(),
 	/** The sentence the chart makes. Becomes the SVG's accessible name. */
@@ -56,6 +72,15 @@ const common = {
 	desc: z.string().min(1),
 	ticks: z.array(labelledX).min(2),
 	xLabel: xLabelStyle,
+	/**
+	 * Explicit names for x positions, overriding `xLabel` where they match.
+	 *
+	 * `xLabel`'s four styles cover a chart whose clock starts at the event —
+	 * "week 4", "Q5". A chart of a real episode has a real calendar, and a table
+	 * row reading "month 14" instead of "Dec 1974" makes the reader do arithmetic
+	 * the chart should have done. Positions left out here fall back to `xLabel`.
+	 */
+	xLabels: z.array(labelledX).optional(),
 	caption,
 };
 

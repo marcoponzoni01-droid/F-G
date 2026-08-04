@@ -132,7 +132,7 @@ export function renderDivergence(spec: DivergenceSpec): RenderedChart {
 		hoverLayer(top - 4, top + PLOT_H) +
 		`</svg>`;
 
-	const label = xLabeller(spec.xLabel);
+	const label = xLabeller(spec.xLabel, spec.xLabels);
 
 	return {
 		svg,

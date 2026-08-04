@@ -195,6 +195,30 @@ const control =
 			);
 		}
 
+		/**
+		 * Two searches, because one query means two different things.
+		 *
+		 * Titles, tags and facet names are short, so fuzzy matching there is typo
+		 * tolerance — "sanctons" should still find the sanctions issue. Prose is
+		 * not: fuzzy matching a 3,000-character body stops discriminating, because
+		 * something in it is almost always within the edit distance of the query.
+		 * At five issues "qualification" returned the one issue using the word; at
+		 * eight it returned half the archive, and the deks and summaries were long
+		 * enough to do it too.
+		 *
+		 * So prose is matched literally. A reader typing a word they remember
+		 * reading wants the issue containing it, not the four that nearly do.
+		 */
+		function search(q: string): Set<string> {
+			const ids = fuse ? fuse.search(q).map((r) => r.item.id) : [];
+			const needle = q.toLowerCase();
+			for (const record of records) {
+				const prose = `${record.dek} ${record.summary} ${record.body ?? ''}`.toLowerCase();
+				if (prose.includes(needle)) ids.push(record.id);
+			}
+			return new Set(ids);
+		}
+
 		function apply() {
 			const q = read('q');
 			const type = read('type');
@@ -215,7 +239,7 @@ const control =
 				return;
 			}
 
-			const matched = q.length >= 2 && fuse ? new Set(fuse.search(q).map((r) => r.item.id)) : null;
+			const matched = q.length >= 2 ? search(q) : null;
 
 			let visible = 0;
 			for (const record of records) {
@@ -272,14 +296,13 @@ const control =
 				.then((data) => {
 					records = data;
 					fuse = new Fuse(records, {
+						// Short fields only. `dek`, `summary` and `body` are matched
+						// literally instead — see search() above.
 						keys: [
 							{ name: 'title', weight: 3 },
-							{ name: 'dek', weight: 2 },
-							{ name: 'summary', weight: 2 },
 							{ name: 'tags', weight: 2 },
 							{ name: 'regions', weight: 1.5 },
 							{ name: 'assets', weight: 1.5 },
-							{ name: 'body', weight: 1 },
 						],
 						threshold: 0.34,
 						ignoreLocation: true,

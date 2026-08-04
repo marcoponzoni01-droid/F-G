@@ -1,0 +1,157 @@
+---
+title: 'October 1973: the shock that took a year to arrive'
+dek: 'Crude quadrupled in ninety days. The equity trough came a year later and the inflation peak fourteen months later — the same event, arriving three times.'
+date: 2026-06-07
+issueNumber: 1
+regions: [Middle East, United States, Europe]
+assets: [Commodities, Equities, Rates]
+eventType: conflict
+tags: [oil-embargo, opec, stagflation, yom-kippur-war, historical]
+summary: >-
+  The 1973 embargo is the founding case of the pattern this publication is about.
+  The barrel repriced in weeks, the equity market bottomed a year later, and the
+  consumer price index did not peak until fourteen months after that — and each
+  of those was reported at the time as a separate crisis.
+marketMoves:
+  - { instrument: 'S&P 500', level: '6,355.52', change: '−0.5%' }
+  - { instrument: 'NASDAQ', level: '21,559.19', change: '−0.8%' }
+  - { instrument: 'Brent Oil', level: '82.41', change: '+1.6%' }
+  - { instrument: 'US Dollar Index', level: '102.92', change: '+0.5%' }
+  - { instrument: 'FTSE MIB', level: '34,588.61', change: '−0.4%' }
+marketMovesNote: 'Illustrative placeholder data — the historical figures are in the chart'
+chart:
+  type: transmission-lag
+  id: opec73
+  span: 24
+  title: 'One embargo, three clocks: the posted price peaks in month 3, the S&P 500 bottoms in month 12, US inflation peaks in month 14.'
+  desc: >-
+    Three stacked panels sharing a timeline from October 1973 to October 1975.
+    The posted price of Arabian Light quadruples within three months and then
+    holds. The S&P 500 grinds down for a year to its October 1974 low. Consumer
+    price inflation keeps rising until December 1974, fourteen months after the
+    embargo began.
+  ticks: [[0, 'Oct 73'], [3, 'Jan 74'], [9, 'Jul 74'], [12, 'Oct 74'], [15, 'Jan 75'], [24, 'Oct 75']]
+  xLabel: months
+  xLabels:
+    [[0, 'Oct 1973'], [1, 'Nov 1973'], [3, 'Jan 1974'], [5, 'Mar 1974'], [9, 'Jul 1974'],
+     [12, 'Oct 1974'], [14, 'Dec 1974'], [15, 'Jan 1975'], [20, 'Jun 1975'], [24, 'Oct 1975']]
+  bracketLabel: '11 months from the oil peak to the inflation peak'
+  provenance: >-
+    Posted price of Arabian Light (OPEC/Federal Reserve History); S&P 500
+    month-end closes; US CPI-U, percent change year on year (BLS). Turning points
+    are as published; intermediate months are interpolated between them.
+  caption:
+    lead: 'The barrel was the fast clock, and nobody trades the slow one.'
+    text: >-
+      The price quadrupled inside a quarter, the equity market took a year to
+      find its low, and inflation did not peak for fourteen months. Positioning
+      that was right about the shock was still early by three seasons.
+  panels:
+    - key: crude
+      title: 'Posted price, Arabian Light'
+      unit: 'US$ per barrel'
+      kind: num2
+      baseline: 0
+      ymin: 0
+      ymax: 14
+      peak: [3, 11.65]
+      peakLabel: 'Jan 1974'
+      points:
+        [[0, 2.9], [1, 5.12], [3, 11.65], [5, 11.65], [9, 11.65], [12, 11.65], [15, 11.25], [20, 11.51], [24, 12.38]]
+    - key: equities
+      title: 'S&P 500'
+      unit: 'index level'
+      kind: index
+      baseline: 55
+      ymin: 55
+      ymax: 125
+      peak: [12, 62.28]
+      peakLabel: 'Oct 1974 low'
+      points:
+        [[0, 108], [1, 96], [3, 97], [5, 94], [9, 79], [12, 62.28], [14, 69], [15, 76], [20, 95], [24, 89]]
+    - key: cpi
+      title: 'US consumer prices'
+      unit: '% year on year'
+      kind: pct1
+      baseline: 0
+      ymin: 0
+      ymax: 14
+      peak: [14, 12.3]
+      peakLabel: 'Dec 1974'
+      points:
+        [[0, 7.8], [1, 8.3], [3, 9.4], [5, 10.4], [9, 11.5], [12, 12.1], [14, 12.3], [15, 11.8], [20, 9.4], [24, 7.4]]
+sources:
+  - { title: 'Federal Reserve History — Oil Shock of 1973–74', url: 'https://www.federalreservehistory.org/essays/oil-shock-of-1973-74' }
+  - { title: 'US Department of State — Oil Embargo, 1973–1974', url: 'https://history.state.gov/milestones/1969-1976/oil-embargo' }
+  - { title: 'BLS Consumer Price Index historical tables', url: 'https://www.bls.gov/cpi/tables/historical-cpi-u.htm' }
+draft: false
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+> **Historical case study.** Unlike this publication's weekly issues, the figures
+> below are drawn from published sources, listed in the sidebar. The market panel
+> beside it remains illustrative placeholder data.
+
+On 17 October 1973, eleven days into the Yom Kippur War, the Arab members of
+OPEC announced production cuts and an embargo on the United States. The posted
+price of Arabian Light had been $2.90 a barrel. By January it was $11.65.
+
+That much is the standard account, and it is the least useful part. What makes
+1973 the founding case for everything this publication covers is not the size of
+the move but its *distribution in time*. The same event produced three separate
+crises — an energy crisis, a stock market crisis and an inflation crisis — and
+each was reported as though it were its own weather.
+
+## What moved
+
+Three things, on three completely different schedules.
+
+The barrel moved first and fastest: a 70 per cent increase announced on 16
+October, and a quadrupling complete within ninety days. This is the part
+everyone remembers, and it was over before most portfolios had reacted.
+
+Equities took a year. The S&P 500 had already peaked in January 1973, before the
+war; it ground down through 1974 and did not bottom until 3 October 1974, at
+62.28, roughly 48 per cent below the high. An investor who had been told the oil
+price in advance would still have been wrong about the timing by about eleven
+months.
+
+Consumer prices took longer still. US inflation was running near 8 per cent when
+the embargo began and did not peak until December 1974, at 12.3 per cent year on
+year — fourteen months later, and by then the embargo itself had been lifted for
+nine months.
+
+<IssueChart chart={frontmatter.chart} />
+
+## Why it moved
+
+The lags are not noise. Each one is a contract.
+
+Crude repriced immediately because it is sold on a spot and posted-price basis,
+and the sellers were the ones setting the number. Nothing sat between the
+decision and the price.
+
+Equities repriced slowly because what they were digesting was not the oil price
+but its consequence for margins and for the discount rate, and both of those
+arrive through earnings, which are reported quarterly and revised for a year.
+
+Consumer prices lagged most because energy reaches a household through a chain of
+regulated tariffs, annual contracts and administered pass-throughs, each of which
+is reset on its own schedule. The embargo ended in March 1974. The inflation it
+caused had not finished arriving.
+
+The 1974 recession, in other words, was not a second event. It was the first one,
+still being delivered.
+
+## What to watch
+
+The gap between the fast clock and the slow one. When a commodity shock has
+fully repriced but the price indices have not yet moved, the temptation is to
+conclude that the shock was absorbed. 1973 is the case against that conclusion —
+the absorption was still fourteen months from finishing, and it was in the slow
+clock, not the fast one, that the policy response was eventually made.
+
+Which is the same reason this publication's issue on European gas storage argues
+for watching inventory rather than the front-month price. The mechanism is
+identical; only the decade is different.

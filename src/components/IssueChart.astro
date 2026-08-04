@@ -16,6 +16,12 @@ interface Props {
 
 const { chart } = Astro.props;
 const { svg, head, rows, hover } = renderChart(chart);
+
+/**
+ * An unsourced chart of a real event is worse than no chart, so the badge says
+ * illustrative unless the issue names where the numbers came from.
+ */
+const provenance = chart.provenance ?? 'Illustrative placeholder data';
 ---
 
 <figure class="issue-chart" data-chart={chart.type} data-chart-id={chart.id}>
@@ -27,14 +33,14 @@ const { svg, head, rows, hover } = renderChart(chart);
 
 	<figcaption>
 		<strong>{chart.caption.lead}</strong>{' '}{chart.caption.text}
-		<span class="ic-illustrative">Illustrative placeholder data</span>
+		<span class="ic-illustrative" data-provenance>{provenance}</span>
 	</figcaption>
 
 	<details class="ic-table">
 		<summary>Show the numbers</summary>
 		<div class="ic-table-scroll">
 			<table>
-				<caption>Illustrative placeholder data.</caption>
+				<caption>{provenance}.</caption>
 				<thead>
 					<tr>
 						{
@@ -92,6 +98,8 @@ const { svg, head, rows, hover } = renderChart(chart);
 		pct0: (v: number) => `${v.toFixed(0)}%`,
 		index: (v: number) => v.toFixed(0),
 		bp: (v: number) => `${v.toFixed(0)}bp`,
+		num2: (v: number) => v.toFixed(2),
+		num1: (v: number) => v.toFixed(1),
 	};
 
 	function interp(points: [number, number][], x: number): number {

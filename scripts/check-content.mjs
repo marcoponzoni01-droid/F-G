@@ -27,7 +27,24 @@ const EXPECTED_CHARTS = {
 	'2026-07-12-substitution-clock': 'divergence',
 	'2026-07-05-election-premium': 'event-track',
 	'2026-06-28-storage-is-the-constraint': 'event-track',
+	'2026-06-21-borrowed-short-invested-long': 'divergence',
+	'2026-06-14-the-rate-that-served-the-peg': 'event-track',
+	'2026-06-07-the-embargo-and-the-lag': 'transmission-lag',
 };
+
+/**
+ * Issues whose chart plots real published data rather than invented figures.
+ *
+ * These must name their sources on the chart itself. A historical chart that
+ * silently fell back to the "illustrative" badge would be understating what it
+ * is; one that kept a real-sources note after its data was replaced would be
+ * overstating it. Both are misrepresentation, and neither breaks the build.
+ */
+const SOURCED_CHARTS = [
+	'2026-06-21-borrowed-short-invested-long',
+	'2026-06-14-the-rate-that-served-the-peg',
+	'2026-06-07-the-embargo-and-the-lag',
+];
 
 const failures = [];
 let checks = 0;
@@ -175,6 +192,24 @@ for (const issue of issues) {
 	);
 }
 
+// Provenance says what kind of number the reader is looking at.
+for (const issue of issues) {
+	if (!EXPECTED_CHARTS[issue.slug]) continue;
+	const note = issue.html.match(/data-provenance>([^<]+)</)?.[1] ?? '';
+	const sourced = SOURCED_CHARTS.includes(issue.slug);
+	check(`${issue.slug} chart states its provenance`, note.length > 0, 'no provenance note');
+	check(
+		`${issue.slug} chart is labelled ${sourced ? 'sourced' : 'illustrative'}`,
+		sourced ? !/illustrative/i.test(note) : /illustrative/i.test(note),
+		`reads "${note.slice(0, 70)}"`,
+	);
+	if (sourced) {
+		// A sourced chart with no external links is unverifiable by the reader.
+		const links = (issue.html.match(/rel="noopener noreferrer external"/g) ?? []).length;
+		check(`${issue.slug} cites sources a reader can follow`, links >= 2, `${links} source links`);
+	}
+}
+
 // A divergence chart must draw both series and the band between them.
 const divergences = issues.filter((i) => EXPECTED_CHARTS[i.slug] === 'divergence');
 for (const issue of divergences) {
@@ -204,6 +239,33 @@ for (const issue of issues.filter((i) => EXPECTED_CHARTS[i.slug] === 'event-trac
 		xs.every((x, i) => i === 0 || x > xs[i - 1]),
 		xs.join(', '),
 	);
+
+	// Marker labels must not sit on top of each other. Decisive dates cluster —
+	// three of them days apart on an axis spanning years is the normal case, not
+	// the edge case — and the renderer staggers them onto extra rows to cope. If
+	// that stagger ever stops working the chart still renders, still passes every
+	// other check, and is unreadable.
+	const labels = [
+		...issue.html.matchAll(
+			/<text class="ic-marker-label" x="([\d.]+)" y="([\d.]+)"[^>]*>([^<]+)<\/text>/g,
+		),
+	].map((m) => ({ x: Number(m[1]), y: Number(m[2]), text: decode(m[3]) }));
+
+	check(`${issue.slug} every marker is labelled`, labels.length === xs.length);
+
+	for (const [i, a] of labels.entries()) {
+		for (const b of labels.slice(i + 1)) {
+			if (a.y !== b.y) continue;
+			// Same estimate the renderer lays out with, so the check tracks the fix.
+			const gap = Math.abs(b.x - a.x);
+			const needed = ((a.text.length + b.text.length) / 2) * 6.2;
+			check(
+				`${issue.slug} labels "${a.text}" and "${b.text}" do not overlap`,
+				gap >= needed,
+				`${gap.toFixed(0)} units apart, need ${needed.toFixed(0)}`,
+			);
+		}
+	}
 }
 
 // ── 4. The market panel compounds week to week ────────────────────────────

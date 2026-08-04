@@ -98,7 +98,7 @@ export function renderTransmissionLag(spec: TransmissionLagSpec): RenderedChart 
 		hoverLayer(shockTop, shockBottom) +
 		`</svg>`;
 
-	const label = xLabeller(spec.xLabel);
+	const label = xLabeller(spec.xLabel, spec.xLabels);
 	const stops = xStops(...panels.map((p) => p.points));
 
 	return {

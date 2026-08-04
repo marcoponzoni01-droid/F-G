@@ -1,0 +1,138 @@
+---
+title: 'Korea 1997: solvent, and out of dollars anyway'
+dek: 'The debt was not too large. It was too short — and a maturity mismatch does not need a recession to become a default.'
+date: 2026-06-21
+issueNumber: 3
+regions: [Japan & Korea, South & Southeast Asia, Global]
+assets: [FX, Sovereign Debt, Credit]
+eventType: sovereign-debt
+tags: [maturity-mismatch, capital-account, rollover-risk, imf, historical]
+summary: >-
+  Korea entered 1997 growing, with a small fiscal deficit and a competitive
+  export sector, and still needed the largest IMF programme then assembled.
+  Short-term external debt had reached roughly $98bn against foreign exchange
+  reserves that were a third of that — and the crisis was the rollover, not the
+  balance sheet.
+marketMoves:
+  - { instrument: 'S&P 500', level: '6,329.96', change: '−0.7%' }
+  - { instrument: 'NASDAQ', level: '21,428.65', change: '−1.1%' }
+  - { instrument: 'Brent Oil', level: '81.99', change: '+0.4%' }
+  - { instrument: 'US Dollar Index', level: '103.02', change: '+0.3%' }
+  - { instrument: 'FTSE MIB', level: '34,621.74', change: '−0.6%' }
+marketMovesNote: 'Illustrative placeholder data — the historical figures are in the chart'
+chart:
+  type: divergence
+  id: kr97
+  span: 4
+  heading: 'Korea: short-term external debt against foreign exchange reserves'
+  unit: 'US$ billion'
+  kind: index
+  ymin: 0
+  ymax: 110
+  baseline: 0
+  xHead: 'Year end'
+  title: 'Short-term external debt rises from $40bn to $98bn in four years while reserves stay near $30bn, opening a gap of roughly $65bn.'
+  desc: >-
+    Two lines in US dollars billion from 1993 to 1997. Foreign exchange reserves
+    rise gently from about 20 to about 33 billion and then fall. Short-term
+    external debt rises steeply from 40 billion to 98 billion by September 1997.
+    The shaded gap between them widens throughout and is at its widest in 1996.
+  ticks: [[0, '1993'], [1, '1994'], [2, '1995'], [3, '1996'], [4, 'Sep 1997']]
+  xLabel: quarters
+  xLabels: [[0, '1993'], [1, '1994'], [2, '1995'], [3, '1996'], [4, 'Sep 1997']]
+  gapAt: 3
+  gapLabel: '≈280% of reserves'
+  provenance: >-
+    Short-term external debt and official foreign exchange reserves, Bank of
+    Korea and IMF staff papers on the 1997–98 crisis. Year-end except the final
+    point, which is end-September 1997.
+  caption:
+    lead: 'The gap is the crisis; the level of debt never was.'
+    text: >-
+      Reserves roughly held their level for four years while the claims that
+      could be presented against them in any twelve-month window more than
+      doubled. Nothing had to go wrong for that to break — the lenders merely had
+      to decline to roll.
+  series:
+    - name: 'Foreign exchange reserves'
+      points: [[0, 20.2], [1, 25.7], [2, 32.7], [3, 33.2], [4, 30.4]]
+    - name: 'Short-term external debt'
+      points: [[0, 40], [1, 58], [2, 78], [3, 93], [4, 98]]
+sources:
+  - { title: 'IMF — The 1997–98 Korean Financial Crisis: Causes, Policy Response, and Lessons (Kihwan Kim)', url: 'https://www.imf.org/external/np/seminars/eng/2006/cpem/pdf/kihwan.pdf' }
+  - { title: 'World Bank — The Korean Financial Crisis of 1997', url: 'https://documents1.worldbank.org/curated/en/666521468284098048/pdf/594620PUB0REPL10Box358282B01PUBLIC1.pdf' }
+  - { title: 'BIS — Policy responses to strengthen liquidity risk management in Korea', url: 'https://www.bis.org/publ/plcy08f.pdf' }
+draft: false
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+> **Historical case study.** Unlike this publication's weekly issues, the figures
+> below are drawn from published sources, listed in the sidebar. The market panel
+> beside it remains illustrative placeholder data.
+
+By every measure a ratings committee looked at in 1997, Korea was fine. Growth
+had run above 7 per cent for a decade. The budget was close to balance. Public
+debt was low, the savings rate was among the highest in the world, and the export
+sector was genuinely competitive.
+
+In December of that year it agreed a programme with the IMF worth about $58
+billion, the largest then assembled, and the won had gone from around 890 to the
+dollar to a low near 1,960.
+
+Nothing in the first paragraph is wrong. The second paragraph happened anyway,
+because solvency and liquidity are different questions and only one of them was
+being asked.
+
+## What moved
+
+The currency, and then everything priced in it. But the variable that decided the
+outcome had finished moving years earlier.
+
+In 1993 Korea removed controls on short-term overseas borrowing by banks while
+leaving longer-maturity borrowing more restricted — so the cheapest way for a
+Korean institution to fund itself abroad became the shortest. Short-term external
+debt went from about $40 billion in 1993 to roughly $98 billion by the end of
+September 1997, by which point it was over half of all external liabilities.
+
+Reserves did not follow. They rose from about $20 billion to $33 billion and then
+stopped. By 1996 short-term claims were near 280 per cent of official reserves.
+
+<IssueChart chart={frontmatter.chart} />
+
+Then in October and November 1997, defending the won, the authorities spent about
+$15 billion of what was left.
+
+## Why it moved
+
+A maturity mismatch is a bet that lenders will keep lending, made by someone who
+does not get a vote.
+
+Borrowing short to lend long is profitable precisely because short money is
+cheap, and it is cheap because the lender can leave. Each individual loan is
+small, sensible and secured. In aggregate they constitute a claim on the central
+bank's reserves that can be presented all at once, and the decision to present it
+is not taken by the borrower, the regulator, or the government.
+
+This is why contagion from Thailand — an economy Korea traded with modestly and
+resembled little — was sufficient. Nothing had to be true about Korea. A lender
+deciding not to roll a ninety-day facility is not making a judgement about
+Korean solvency; it is managing its own book, and every other lender is doing the
+same arithmetic in the same week.
+
+The 1997 crisis was therefore not a mispricing of Korean credit. It was a
+mispricing of *liquidity* — of the option that lenders held and borrowers had
+sold cheaply, without recording it anywhere.
+
+## What to watch
+
+**Short-term external debt as a multiple of usable reserves**, and the word
+usable is load-bearing: reserves already committed in forward contracts or
+deposited with banks' overseas branches cannot be spent twice. Korea's headline
+reserves were around $30 billion in late 1997; the amount actually available fell
+to a small fraction of that.
+
+The ratio is published, it moves slowly, and it was above 200 per cent for two
+full years before anything happened — which is the useful part. Unlike a
+contagion date, a maturity mismatch gives years of notice. It simply gives it in
+a statistic nobody trades on.

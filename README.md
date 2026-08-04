@@ -9,7 +9,9 @@ A publication with two services that are really one thing:
 
 The central idea: **a newsletter issue and an archive entry are the same object at different ages.** There is no "move to archive" step, no published/archived flag, nothing to remember. Each issue is one file, and the newest date is the current issue. Commit next week's file and last week's demotes itself.
 
-The five issues in `src/content/issues/` are examples, labelled as such and using illustrative figures. They exist so the archive can demonstrate itself — five event types across nine regions, so the filters and the full-text search have something real to cut. Delete them before publishing.
+The eight issues in `src/content/issues/` are examples, and they come in two kinds. Five are **illustrative**: invented figures, labelled as such, showing the weekly format. Three are **historical case studies** — the 1973 oil embargo, Black Wednesday, Korea 1997 — whose charts plot real published data and name their sources. Between them they cover all eight event types across nine regions, so the filters and the full-text search have something real to cut. Delete them before publishing.
+
+A chart is labelled illustrative unless its spec sets `provenance`, and `scripts/check-content.mjs` asserts that each issue carries the label it should — an unsourced chart of a real event is worse than no chart.
 
 ---
 
@@ -134,6 +136,8 @@ docs/DEPLOYING.md           How to go live when you're ready
 ### How the archive search works
 
 At build time `search-index.json` is generated from every issue. The archive page renders all cards server-side — so it works with JavaScript disabled and is fully crawlable — and the client script only ever hides and shows those cards as you search and filter. Filter state is mirrored into the URL, so any result set is a shareable link.
+
+A query runs two ways at once. **Titles, tags, regions and asset classes** go through Fuse, so a typo still finds the issue. **Deks, summaries and article bodies** are matched literally. Fuzzy matching prose does not work: something in three thousand characters is nearly always within the edit distance of the query, so `qualification` matched one issue when there were five and half the archive when there were eight. Precision where the text is long, tolerance where it is short.
 
 If the fetch fails, the complete list stays on screen. There is no server and no database to run.
 

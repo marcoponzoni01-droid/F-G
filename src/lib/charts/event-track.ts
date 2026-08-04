@@ -32,14 +32,55 @@ const TITLE_H = 40;
 const AXIS_H = 26;
 const MARK_H = 40;
 
+/** Vertical step between staggered rows of marker labels. */
+const MARK_ROW_H = 15;
+
+/**
+ * Conservative advance width per character of the marker label, in viewBox
+ * units, at its 10px mono size.
+ *
+ * Overstated on purpose. Getting this wrong low puts two labels on top of each
+ * other — the failure this exists to prevent — while getting it wrong high only
+ * moves a label to a row it did not strictly need. So it rounds up.
+ */
+const MARK_CHAR = 6.2;
+
+/**
+ * Assign each marker a label row so that no two labels overlap.
+ *
+ * Markers cluster: an event's decisive dates are often days apart on an axis
+ * spanning years, and three labels centred within a few pixels of each other are
+ * unreadable however carefully the rest of the chart is drawn. Rows are assigned
+ * greedily left to right — the first row whose last label has already ended.
+ */
+function assignRows(
+	markers: readonly (readonly [number, string])[],
+	xOf: (v: number) => number,
+): number[] {
+	const rowEnds: number[] = [];
+	return markers.map(([x, label]) => {
+		const halfWidth = (label.length * MARK_CHAR) / 2;
+		const left = xOf(x) - halfWidth;
+		const right = xOf(x) + halfWidth;
+		let row = rowEnds.findIndex((end) => left > end + 6);
+		if (row === -1) row = rowEnds.length;
+		rowEnds[row] = right;
+		return row;
+	});
+}
+
 export function renderEventTrack(spec: EventTrackSpec): RenderedChart {
 	const { span, ymin, ymax } = spec;
 	const top = TITLE_H;
 	const axisY = top + PLOT_H + 8;
-	const height = axisY + AXIS_H + MARK_H;
 
 	const xOf = (v: number) => X0 + (v / span) * (X1 - X0);
 	const yOf = (v: number) => top + PLOT_H - ((v - ymin) / (ymax - ymin)) * PLOT_H;
+
+	// The figure grows to fit however many rows the markers need, so a cluster of
+	// dates costs height rather than legibility.
+	const rows = assignRows(spec.markers, xOf);
+	const height = axisY + AXIS_H + MARK_H + Math.max(...rows) * MARK_ROW_H;
 
 	const format = formatterFor(spec.kind);
 	const pixels: Pixel[] = spec.points.map(([x, v]) => [xOf(x), yOf(v)]);
@@ -58,14 +99,22 @@ export function renderEventTrack(spec: EventTrackSpec): RenderedChart {
 	}
 
 	let markers = '';
-	for (const [x, label] of spec.markers) {
+	spec.markers.forEach(([x, label], i) => {
 		const tx = xOf(x);
 		const anchor = tx <= X0 + 2 ? 'start' : tx >= X1 - 2 ? 'end' : 'middle';
+		const labelY = axisY + 34 + rows[i] * MARK_ROW_H;
+		// A label on a lower row needs a leader back to its own marker, or the
+		// reader has to guess which date it belongs to.
+		const leader =
+			rows[i] === 0
+				? ''
+				: `<line class="ic-marker-rule" x1="${n(tx)}" y1="${axisY + 4}" x2="${n(tx)}" y2="${labelY - 8}"/>`;
 		markers +=
 			`<line class="ic-marker-rule" x1="${n(tx)}" y1="${top - 4}" x2="${n(tx)}" y2="${axisY}"/>` +
 			`<circle class="ic-marker" cx="${n(tx)}" cy="${axisY}" r="3.5"/>` +
-			`<text class="ic-marker-label" x="${n(tx)}" y="${axisY + 34}" text-anchor="${anchor}">${esc(label)}</text>`;
-	}
+			leader +
+			`<text class="ic-marker-label" x="${n(tx)}" y="${labelY}" text-anchor="${anchor}">${esc(label)}</text>`;
+	});
 
 	const [peakX, peakV] = spec.peak;
 	const svg =
@@ -81,7 +130,7 @@ export function renderEventTrack(spec: EventTrackSpec): RenderedChart {
 		hoverLayer(top - 4, top + PLOT_H) +
 		`</svg>`;
 
-	const label = xLabeller(spec.xLabel);
+	const label = xLabeller(spec.xLabel, spec.xLabels);
 	const stops = spec.points.map(([x]) => x);
 	const markerAt = new Map(spec.markers.map(([x, text]) => [x, text]));
 
