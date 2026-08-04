@@ -1,5 +1,5 @@
 import { getIssueIndex, isoDate, toPlainText, type Issue } from './issues';
-import { getPublishedStudies, studyDate, type Study } from './studies';
+import { getPublishedStudies, type Study } from './studies';
 import { issueHref, studyHref } from './paths';
 
 /**
@@ -21,7 +21,12 @@ export interface ArchiveEntry {
 	title: string;
 	dek: string;
 	summary: string;
-	/** Sort key: an issue's week ending, a study's publication date. */
+	/**
+	 * Sort key and the date a piece entered the record: an issue's week ending,
+	 * a study's *first* publication. Deliberately not a study's revision date —
+	 * the archive is a chronology, and editing a two-year-old study should not
+	 * make it jump above this week's issue.
+	 */
 	date: Date;
 	/** Set on a revised study only — an issue is never edited after publication. */
 	updated?: Date;
@@ -60,7 +65,7 @@ export function entryFromStudy(study: Study): ArchiveEntry {
 		title: study.data.title,
 		dek: study.data.dek,
 		summary: study.data.summary,
-		date: studyDate(study),
+		date: study.data.published,
 		updated: study.data.updated,
 		subject: study.data.subject,
 		regions: study.data.regions,

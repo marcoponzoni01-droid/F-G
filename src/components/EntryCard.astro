@@ -20,6 +20,9 @@ const { entry, current = false } = Astro.props;
  * subject. The eyebrow says which you are looking at without needing a badge.
  */
 const isStudy = entry.kind === 'study';
+
+/** What the card shows: the revision if there is one, else first publication. */
+const shown = entry.updated ?? entry.date;
 ---
 
 {/*
@@ -66,7 +69,7 @@ const isStudy = entry.kind === 'study';
 		isStudy && (
 			<p class="mt-2 label">
 				{entry.updated ? 'Updated' : 'Published'}{' '}
-				<time datetime={isoDate(entry.date)}>{formatDateShort(entry.date)}</time>
+				<time datetime={isoDate(shown)}>{formatDateShort(shown)}</time>
 			</p>
 		)
 	}

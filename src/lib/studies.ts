@@ -14,8 +14,14 @@ export async function getPublishedStudies(): Promise<Study[]> {
 	return studies.sort((a, b) => b.data.published.valueOf() - a.data.published.valueOf());
 }
 
-/** The date a reader should see: when it was last revised, else when it ran. */
-export function studyDate(study: Study): Date {
+/**
+ * The date a reader should *see*: when it was last revised, else when it ran.
+ *
+ * Not the date anything sorts by — see the note on `date` in src/lib/archive.ts.
+ * What a reader of reference material needs is how stale it might be; what the
+ * archive needs is a stable chronology. Those are different questions.
+ */
+export function displayDate(study: Study): Date {
 	return study.data.updated ?? study.data.published;
 }
 
