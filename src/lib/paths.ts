@@ -21,6 +21,11 @@ export function issueHref(id: string): string {
 	return href(`/issues/${id}`);
 }
 
+/** Canonical path for a single study. */
+export function studyHref(id: string): string {
+	return href(`/studies/${id}`);
+}
+
 /** Absolute URL, for canonical tags, Open Graph and the RSS feed. */
 export function absoluteUrl(path: string, origin: URL | string): string {
 	return new URL(href(path), origin).toString();

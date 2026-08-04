@@ -5,13 +5,24 @@ import { href } from '../lib/paths';
 interface Props {
 	regions?: readonly string[];
 	assets?: readonly string[];
-	eventType?: string;
+	/**
+	 * One for an issue, several for a study — an issue covers one event and so
+	 * one channel, while a study explains a structure several channels run
+	 * through. Both arrive here as an array.
+	 */
+	eventTypes?: readonly string[];
 	/** Chips link into the archive with that facet pre-selected. */
 	linked?: boolean;
 	class?: string;
 }
 
-const { regions = [], assets = [], eventType, linked = false, class: className = '' } = Astro.props;
+const {
+	regions = [],
+	assets = [],
+	eventTypes = [],
+	linked = false,
+	class: className = '',
+} = Astro.props;
 
 const base =
 	'inline-block border px-2 py-0.5 text-xs leading-5 whitespace-nowrap no-underline transition-colors';
@@ -19,16 +30,12 @@ const base =
 type Chip = { label: string; facet: 'type' | 'region' | 'asset'; value: string; class: string };
 
 const chips: Chip[] = [
-	...(eventType
-		? [
-				{
-					label: eventTypeLabel(eventType),
-					facet: 'type' as const,
-					value: eventType,
-					class: 'border-accent text-accent bg-accent-soft',
-				},
-			]
-		: []),
+	...eventTypes.map((type) => ({
+		label: eventTypeLabel(type),
+		facet: 'type' as const,
+		value: type,
+		class: 'border-accent text-accent bg-accent-soft',
+	})),
 	...regions.map((r) => ({
 		label: r,
 		facet: 'region' as const,

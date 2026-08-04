@@ -103,9 +103,25 @@ for (const slug of issueDirs) {
 	});
 }
 
+const studyDirs = (await readdir(path.join(DIST, 'studies'), { withFileTypes: true }))
+	.filter((e) => e.isDirectory())
+	.map((e) => e.name)
+	.sort();
+
+const studies = [];
+for (const slug of studyDirs) {
+	studies.push({ slug, html: await read(path.join('studies', slug, 'index.html')) });
+}
+
 const home = await read('index.html');
 const archive = await read(path.join('archive', 'index.html'));
+const studiesIndex = await read(path.join('studies', 'index.html'));
 const index = JSON.parse(await read('search-index.json'));
+
+const indexed = {
+	issues: index.filter((r) => r.kind === 'issue'),
+	studies: index.filter((r) => r.kind === 'study'),
+};
 
 // ── 1. Every issue exists in all three places ─────────────────────────────
 check('at least one issue is published', issues.length > 0);
@@ -121,8 +137,8 @@ check(
 
 check(
 	'search index covers every issue',
-	index.length === issues.length,
-	`${index.length} records, ${issues.length} issues`,
+	indexed.issues.length === issues.length,
+	`${indexed.issues.length} issue records, ${issues.length} issues`,
 );
 
 for (const issue of issues) {
@@ -135,6 +151,73 @@ for (const issue of issues) {
 		`search index contains ${issue.slug}`,
 		index.some((record) => record.id === issue.slug),
 		'a reader searching for it would find nothing',
+	);
+}
+
+// ── 1b. Studies reach the same three places ───────────────────────────────
+// A study that exists as a page but never made the archive or the index is the
+// exact failure the second collection was meant to avoid: two libraries.
+const archiveStudyCards = [...new Set(all(archive, /href="[^"]*\/studies\/([^"/]+)\/?"/g))];
+
+check(
+	'search index covers every study',
+	indexed.studies.length === studies.length,
+	`${indexed.studies.length} study records, ${studies.length} studies`,
+);
+
+for (const study of studies) {
+	check(
+		`archive links ${study.slug}`,
+		archiveStudyCards.includes(study.slug),
+		'a study missing from the archive is a second library',
+	);
+	check(
+		`/studies links ${study.slug}`,
+		studiesIndex.includes(`/studies/${study.slug}`),
+		'built but not reachable from its own index',
+	);
+	check(
+		`search index contains ${study.slug}`,
+		index.some((record) => record.id === study.slug),
+		'a reader searching for it would find nothing',
+	);
+}
+
+// A card is a grid item, so an unbreakable child widens its whole column and
+// every sibling with it. A study subject can be a sentence, so its eyebrow must
+// be allowed to wrap — this once pushed the archive 13px sideways on a phone.
+check(
+	'study card eyebrows can wrap',
+	!/class="label whitespace-nowrap text-accent"/.test(archive),
+	'a nowrap eyebrow will widen the grid column it sits in',
+);
+
+// Studies are not numbered, and never claim to be an issue.
+for (const record of indexed.studies) {
+	check(
+		`${record.id} carries a subject`,
+		Boolean(record.subject),
+		'a study is indexed by what it is about',
+	);
+	check(`${record.id} is not numbered`, record.issueNumber === undefined, String(record.issueNumber));
+}
+
+// "Updated" appears only where the frontmatter set it, and never on an issue.
+for (const study of studies) {
+	const record = indexed.studies.find((r) => r.id === study.slug);
+	const shows = /\bUpdated\b/.test(text(study.html));
+	check(
+		`${study.slug} shows "Updated" iff it has been revised`,
+		shows === Boolean(record?.updated),
+		record?.updated ? 'revised but not stated' : 'states a revision it never had',
+	);
+}
+
+for (const issue of issues) {
+	check(
+		`${issue.slug} never claims a revision`,
+		!/\bUpdated\b/.test(text(issue.html)),
+		'an issue is a record and is not edited after publication',
 	);
 }
 
@@ -336,29 +419,49 @@ for (const [i, issue] of issues.entries()) {
 
 // ── 6. Facets can actually cut the archive ────────────────────────────────
 // An archive whose filters all return everything is a list with extra steps.
-const eventTypes = new Set(index.map((r) => r.eventType));
-check(
-	'issues span more than one event type',
-	eventTypes.size > 1,
-	`all ${index.length} issues are ${[...eventTypes][0]}`,
-);
-
-for (const facet of ['eventType', 'regions', 'assets']) {
-	const values = new Set(index.flatMap((r) => [r[facet]].flat()));
+for (const facet of ['eventTypes', 'regions', 'assets', 'kind']) {
+	const values = new Set(index.flatMap((r) => [r[facet]].flat().filter(Boolean)));
 	check(`archive offers more than one ${facet}`, values.size > 1, [...values].join(', '));
 }
 
-// Every value the filter controls offer must match at least one issue, or the
+// Every value the filter controls offer must match at least one entry, or the
 // reader picks it and gets an empty page.
 const options = all(archive, /<option value="([^"]+)"/g)
 	.map(decode)
 	.filter((v) => v && v !== 'all');
 for (const value of new Set(options)) {
 	const matches = index.some((r) =>
-		[r.eventType, ...(r.regions ?? []), ...(r.assets ?? [])].includes(value),
+		[r.kind, ...(r.eventTypes ?? []), ...(r.regions ?? []), ...(r.assets ?? [])].includes(value),
 	);
-	check(`filter option "${value}" matches an issue`, matches, 'selecting it would show nothing');
+	check(`filter option "${value}" matches an entry`, matches, 'selecting it would show nothing');
 }
+
+// ── 7. The two collections stay separate where it matters ─────────────────
+// The homepage hero is the newest *issue*. A study is newer than several of
+// them and must never take that slot — that is the whole reason studies live in
+// their own collection rather than behind a `kind` field. Nothing else on the
+// page would look wrong if this broke.
+const newestIssue = issues[0];
+check(
+	'the hero is an issue, not a study',
+	home.includes(`/issues/${newestIssue.slug}`),
+	`hero should be ${newestIssue.slug}`,
+);
+for (const study of studies) {
+	const heroSection = home.slice(0, home.indexOf('From the archive'));
+	check(
+		`${study.slug} is not the hero`,
+		!heroSection.includes(`/studies/${study.slug}`),
+		'a study has taken over "this week"',
+	);
+}
+
+// And the reverse: studies must not be numbered into the weekly sequence.
+check(
+	'issue numbering ignores studies',
+	numbers.length === issues.length && Math.max(...numbers) === issues.length,
+	`highest number ${Math.max(...numbers)} across ${issues.length} issues`,
+);
 
 // ── Report ────────────────────────────────────────────────────────────────
 if (failures.length > 0) {
@@ -369,6 +472,6 @@ if (failures.length > 0) {
 }
 
 console.log(
-	`${checks} content checks passed across ${issues.length} issues ` +
-		`(numbering, charts, market panel, prev/next, facets).`,
+	`${checks} content checks passed across ${issues.length} issues and ${studies.length} studies ` +
+		`(numbering, charts, market panel, prev/next, facets, collection separation).`,
 );

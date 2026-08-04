@@ -1,0 +1,143 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Chips from '../../components/Chips.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+import { formatDate, isoDate } from '../../lib/issues';
+import { getPublishedStudies, type Study } from '../../lib/studies';
+import { href, studyHref } from '../../lib/paths';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+	const all = await getPublishedStudies();
+	return all.map((study) => ({ params: { id: study.id }, props: { study, all } }));
+};
+
+interface Props {
+	study: Study;
+	all: Study[];
+}
+
+const { study, all } = Astro.props;
+const { Content } = await render(study);
+const { title, dek, subject, subjectKind, regions, assets, eventTypes, tags, summary, published, updated, sources } =
+	study.data;
+
+/** Other studies of the same kind, for the foot of the page. */
+const related = all.filter((s) => s.id !== study.id && s.data.subjectKind === subjectKind).slice(0, 2);
+---
+
+<Base
+	path={`/studies/${study.id}`}
+	title={title}
+	description={summary}
+	ogType="article"
+	publishedTime={published.toISOString()}
+>
+	<article class="mx-auto max-w-5xl px-5 sm:px-8">
+		<header class="pt-10 pb-8 border-b border-line">
+			<div class="flex flex-wrap items-center gap-3">
+				<p class="label text-accent">Study · {subject}</p>
+				<span class="label border border-line-strong px-1.5 py-0.5 leading-none">
+					{subjectKind === 'country' ? 'Country' : 'Mechanism'}
+				</span>
+			</div>
+
+			<h1 class="mt-4 font-serif text-3xl sm:text-4xl leading-tight max-w-3xl">{title}</h1>
+			<p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-muted">{dek}</p>
+
+			{/*
+			  A study states both dates. An issue states one and is never revised —
+			  it is a record. This is reference, so what a reader needs to know is
+			  how stale it might be, which is the revision date, not the first
+			  publication. See "Method, and its limits" on the About page.
+			*/}
+			<p class="mt-5 label">
+				{
+					updated ? (
+						<>
+							Updated <time datetime={isoDate(updated)}>{formatDate(updated)}</time> · first
+							published <time datetime={isoDate(published)}>{formatDate(published)}</time>
+						</>
+					) : (
+						<>
+							Published <time datetime={isoDate(published)}>{formatDate(published)}</time>
+						</>
+					)
+				}
+			</p>
+
+			<Chips regions={regions} assets={assets} eventTypes={eventTypes} linked class="mt-6" />
+		</header>
+
+		<div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14 pt-9">
+			<div class="prose max-w-[68ch]">
+				<Content />
+			</div>
+
+			<aside class="lg:sticky lg:top-8 space-y-6 self-start">
+				{
+					sources.length > 0 && (
+						<section class="border border-line bg-surface">
+							<h2 class="label px-4 pt-3 pb-2 border-b border-line">Sources</h2>
+							<ul class="divide-y divide-line">
+								{sources.map((source) => (
+									<li>
+										<a
+											href={source.url}
+											rel="noopener noreferrer external"
+											target="_blank"
+											class="block px-4 py-2.5 text-sm text-ink-muted no-underline transition-colors hover:text-accent"
+										>
+											{source.title} <span aria-hidden="true">↗</span>
+										</a>
+									</li>
+								))}
+							</ul>
+						</section>
+					)
+				}
+
+				{
+					tags.length > 0 && (
+						<section>
+							<h2 class="label">Tags</h2>
+							<p class="mt-2 text-sm text-ink-faint">{tags.join(' · ')}</p>
+						</section>
+					)
+				}
+			</aside>
+		</div>
+
+		<div class="mt-14 max-w-[68ch]">
+			<NewsletterForm
+				heading="The weekly issue, in your inbox"
+				blurb="One issue a week on what moved and why. Studies like this one stay free to read here."
+			/>
+		</div>
+
+		{
+			related.length > 0 && (
+				<nav aria-label="Other studies" class="mt-12 border-t border-line pt-6 grid gap-4 sm:grid-cols-2">
+					{related.map((other) => (
+						<a
+							href={studyHref(other.id)}
+							class="group border border-line p-4 no-underline transition-colors hover:border-line-strong"
+						>
+							<span class="label">{other.data.subject}</span>
+							<span class="mt-1.5 block font-serif text-base leading-snug transition-colors group-hover:text-accent">
+								{other.data.title}
+							</span>
+						</a>
+					))}
+				</nav>
+			)
+		}
+
+		<p class="mt-8 text-sm">
+			<a href={href('/studies')} class="text-ink-muted no-underline hover:text-accent">
+				All studies →
+			</a>
+		</p>
+	</article>
+</Base>

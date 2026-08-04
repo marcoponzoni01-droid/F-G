@@ -1,0 +1,162 @@
+---
+title: 'What a central bank can and cannot do about an energy shock'
+dek: 'Rates cannot produce gas. What they can do is decide whether one expensive winter becomes a decade of expectations — and that is a different job from the one central banks are usually accused of failing at.'
+summary: >-
+  An energy shock raises the price level; monetary policy governs the rate of
+  change. The two get conflated in every commentary cycle, and the conflation is
+  why central banks are attacked for both acting and not acting. The useful
+  question is never whether policy can undo the shock, but whether the shock is
+  becoming an expectation.
+subject: 'Monetary policy and supply shocks'
+subjectKind: mechanism
+regions: [Europe, United States, Global]
+assets: [Rates, Natural Gas, Equities, FX]
+eventTypes: [monetary, energy, supply-chain]
+tags: [second-round-effects, expectations, output-gap, pass-through]
+published: 2026-06-30
+chart:
+  type: transmission-lag
+  id: cbenergy
+  span: 24
+  title: 'A supply shock moves headline inflation within a quarter, core within a year, and wage settlements only after that — which is the one policy can still change.'
+  desc: >-
+    Three stacked panels sharing a two-year timeline from the shock. Headline
+    inflation spikes almost immediately and falls back. Core inflation rises
+    later and more gently. Negotiated wage growth moves last of all and does not
+    return to its starting point within the window.
+  ticks: [[0, 'shock'], [3, 'mo 3'], [9, 'mo 9'], [15, 'mo 15'], [24, 'mo 24']]
+  xLabel: months
+  xLabels:
+    [[0, 'shock'], [3, 'month 3'], [6, 'month 6'], [9, 'month 9'], [12, 'month 12'],
+     [15, 'month 15'], [18, 'month 18'], [24, 'month 24']]
+  bracketLabel: 'the window where policy still decides the outcome'
+  provenance: >-
+    Stylised profiles, drawn to match the ordering and rough timing reported in
+    ECB and BIS work on second-round effects. Not a forecast and not quoted data.
+  caption:
+    lead: 'Policy cannot reach the first panel. It can still reach the third.'
+    text: >-
+      The energy price is already in the headline number before a committee has
+      met. What is still undecided two years out is whether the shock has been
+      written into wage and price-setting — and that, not the barrel, is what a
+      rate decision is actually addressing.
+  panels:
+    - key: headline
+      title: 'Headline inflation'
+      unit: '% year on year'
+      kind: pct1
+      baseline: 0
+      ymin: 0
+      ymax: 11
+      peak: [3, 9.4]
+      peakLabel: 'month 3'
+      points: [[0, 2.1], [3, 9.4], [6, 8.8], [9, 6.9], [12, 4.6], [15, 3.4], [18, 2.9], [24, 2.4]]
+    - key: core
+      title: 'Core inflation'
+      unit: '% year on year'
+      kind: pct1
+      baseline: 0
+      ymin: 0
+      ymax: 7
+      peak: [12, 5.3]
+      peakLabel: 'month 12'
+      points: [[0, 1.8], [3, 2.4], [6, 3.4], [9, 4.6], [12, 5.3], [15, 5.0], [18, 4.3], [24, 3.2]]
+    - key: wages
+      title: 'Negotiated wage growth'
+      unit: '% year on year'
+      kind: pct1
+      baseline: 0
+      ymin: 0
+      ymax: 6
+      peak: [18, 4.8]
+      peakLabel: 'month 18'
+      points: [[0, 2.0], [3, 2.1], [6, 2.4], [9, 3.0], [12, 3.8], [15, 4.5], [18, 4.8], [24, 4.4]]
+sources:
+  - { title: 'ECB Economic Bulletin — energy prices and second-round effects', url: 'https://www.ecb.europa.eu/press/economic-bulletin/html/index.en.html' }
+  - { title: 'BIS Annual Economic Report — inflation dynamics', url: 'https://www.bis.org/publ/arpdf/ar2023e.htm' }
+  - { title: 'IMF World Economic Outlook — commodity price pass-through', url: 'https://www.imf.org/en/Publications/WEO' }
+draft: false
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+> **Example study.** Placeholder copy written to show the format. The profiles
+> in the chart are stylised and labelled as such.
+
+Whenever energy prices spike, two arguments arrive on the same day. One says the
+central bank must raise rates because inflation is above target. The other says
+raising rates is absurd, because higher rates do not produce a single additional
+cubic metre of gas.
+
+Both are correct about their own premise and both miss what the decision is
+actually about.
+
+## The distinction that resolves it
+
+A supply shock raises the *price level*. Monetary policy governs the *rate of
+change* in prices over the medium term. These are different quantities, and the
+confusion between them is the whole argument.
+
+Consider what a doubling of the gas price does mechanically. Energy enters the
+consumer basket directly, so headline inflation jumps roughly in proportion to
+energy's weight in the basket. Twelve months later, if the gas price merely
+stays high rather than doubling again, that contribution falls out of the annual
+comparison and headline inflation drops sharply — with no help from anyone. The
+price level stays permanently higher. The inflation *rate* returns on its own.
+
+So if the shock is genuinely one-off, a central bank that does nothing gets
+almost the same twelve-month outcome as one that tightens hard, at considerably
+lower cost in output. This is the strongest form of the do-nothing argument and
+it is correct as far as it goes.
+
+## Where it stops going
+
+It stops when the shock stops being one-off, and that is not a property of the
+shock. It is a property of what people do next.
+
+<IssueChart chart={frontmatter.chart} />
+
+The three panels move on different clocks, and the ordering is the mechanism.
+Headline inflation is the energy price arriving in the basket, essentially
+immediately. Core inflation is firms passing energy costs through into
+everything they sell, which takes about a year because prices are reset
+periodically rather than continuously. Wage growth moves last, because wages are
+set in negotiations that happen annually at most, and the negotiation that
+matters is the one held *after* a year of visibly higher prices.
+
+That last panel is the entire policy question. If wage and price-setting absorb
+the shock as a new baseline, the one-off increase becomes a persistent rate of
+increase — and unwinding that costs far more output later than leaning against
+it early. If they do not, the shock passes through and out.
+
+## What a rate decision is really addressing
+
+Nothing in the first panel. By the time a committee meets, the energy price is
+already in the index and no instrument reaches backwards.
+
+What tightening does is act on the third panel, through two channels. It slows
+demand, which reduces firms' ability to pass costs through without losing volume.
+And, more importantly and less measurably, it signals that the target still
+binds — which is an input into every wage negotiation and every price reset in
+the economy.
+
+That second channel is why central banks sometimes raise rates into an obvious
+supply shock while saying openly that they cannot affect its cause. They are not
+confused. They are addressing the only part of the sequence still undetermined.
+
+## What to watch
+
+**Not headline inflation**, which is telling you about the past and will fall
+mechanically on its own.
+
+Watch the **gap between core and headline**. Headline falling while core keeps
+rising is pass-through in progress — the shock is spreading rather than fading.
+
+Then watch **negotiated wage settlements and inflation expectations at the
+five-to-ten-year horizon**. Settlements are published, they lag by design, and
+they are the closest thing there is to a direct reading of whether the shock has
+been written into the economy's expectations.
+
+If long-horizon expectations are anchored while headline is at nine per cent,
+the shock is being absorbed and policy has already done its job. If they drift
+while headline is falling, the comfortable number is the misleading one.

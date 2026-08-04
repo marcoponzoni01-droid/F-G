@@ -1,0 +1,146 @@
+---
+title: 'Italy: the debt, the banks and the spread'
+dek: 'A debt stock that size is not a solvency question. It is a rollover question, and the answer is written on the balance sheets of the banks that hold it.'
+summary: >-
+  Italy's public debt is large, long-dated and held mostly at home — which makes
+  the spread over Bunds less a verdict on the debt than a live reading of whether
+  domestic banks are willing to keep absorbing it. This is the structure behind
+  every Italian political story that moves markets.
+subject: 'Italy'
+subjectKind: country
+regions: [Europe]
+assets: [Sovereign Debt, Credit, Equities, Rates]
+eventTypes: [sovereign-debt, monetary, elections]
+tags: [doom-loop, btp, bund-spread, redenomination-risk, ecb]
+published: 2026-05-24
+updated: 2026-07-30
+chart:
+  type: divergence
+  id: ita
+  span: 6
+  heading: 'Who owns Italian government debt'
+  unit: '% of the total outstanding'
+  kind: pct0
+  ymin: 0
+  ymax: 60
+  baseline: 0
+  xHead: 'Year'
+  title: 'Domestic holders take up the debt that foreign investors give up, so the total sells but the concentration rises.'
+  desc: >-
+    Two lines in percent of the total outstanding across six years. The foreign
+    share falls steadily while the domestic bank and insurer share rises to meet
+    it, the two crossing near the middle of the period.
+  ticks: [[0, '2020'], [2, '2022'], [4, '2024'], [6, '2026']]
+  xLabel: quarters
+  xLabels: [[0, '2020'], [1, '2021'], [2, '2022'], [3, '2023'], [4, '2024'], [5, '2025'], [6, '2026']]
+  crossing: true
+  gapAt: 1
+  gapLabel: 'domestic overtakes foreign'
+  provenance: >-
+    Illustrative shares consistent with the direction reported in Bank of Italy
+    and ECB securities-holdings statistics. Levels are indicative, not quoted.
+  caption:
+    lead: 'The auction always clears. That is the problem.'
+    text: >-
+      When foreign holders step back, domestic banks and insurers take up the
+      slack — so a funding crisis never appears as a failed auction. It appears
+      later, as a banking-sector problem, because the buyer of last resort is
+      also the lender to the economy.
+  series:
+    - name: 'Foreign investors'
+      points: [[0, 42], [1, 38], [2, 33], [3, 29], [4, 27], [5, 25], [6, 24]]
+    - name: 'Domestic banks and insurers'
+      points: [[0, 28], [1, 31], [2, 35], [3, 38], [4, 41], [5, 43], [6, 44]]
+sources:
+  - { title: 'Banca d’Italia — Public finance statistics', url: 'https://www.bancaditalia.it/pubblicazioni/finanza-pubblica/' }
+  - { title: 'ECB — Securities Holdings Statistics', url: 'https://data.ecb.europa.eu/' }
+  - { title: 'Italian Treasury — Public debt composition and maturity', url: 'https://www.dt.mef.gov.it/en/debito_pubblico/' }
+draft: false
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+> **Example study.** Placeholder copy written to show the format. Figures are
+> indicative and the sources are listed for the structure, not for the numbers.
+
+Every few years an Italian political event produces the same headline: the
+spread is widening. Almost none of the coverage explains what the spread is
+measuring, which is a pity, because it is measuring something quite specific and
+it is not the government's ability to pay.
+
+Italy's debt is around one and a half times national output. That number, on its
+own, tells you very little. Japan's is higher and nothing happens; Greece's was
+lower when everything happened. What matters is not the stock but three things
+about its *structure*: how long it is, what currency it is in, and who holds it.
+
+## What the structure is
+
+The debt is long. Average residual maturity sits around seven years, which means
+that in any given year the Treasury has to refinance roughly a seventh of it,
+not all of it. A rate shock therefore arrives slowly — the average cost of the
+stock moves a fraction as fast as the marginal cost of new issuance. This is the
+single most under-appreciated fact about Italian debt, and it is why a violent
+move in yields does not translate into a fiscal crisis for years, if ever.
+
+The debt is in euros, which the Italian state does not issue. That is the
+genuine vulnerability, and it is categorically different from the first one. A
+country that borrows in its own currency can always pay nominally; the question
+is only what the money is worth. A euro-area sovereign can actually run out.
+Everything that looks like credit risk in an Italian bond is, at bottom, this.
+
+And the debt is held mostly at home.
+
+<IssueChart chart={frontmatter.chart} />
+
+## Why that last fact does the work
+
+The domestic holding share is what turns a funding problem into a banking
+problem, and it is the mechanism people mean when they say *doom loop* without
+usually saying how it works.
+
+When foreign investors reduce exposure, Italian banks and insurers buy. They are
+regulated in ways that make holding domestic sovereign debt attractive — it
+carries a zero risk weight in the standardised approach, and it is the natural
+collateral for central bank operations. So the auctions clear. There is no
+dramatic failure.
+
+What happens instead is that the banking system's assets become more correlated
+with the sovereign's fortunes at exactly the moment the sovereign's fortunes are
+in question. If the spread widens, banks take mark-to-market losses, their
+capital ratios tighten, and they lend less to Italian firms. Weaker firms mean
+weaker growth, weaker growth means a worse debt path, and a worse debt path
+widens the spread. The loop closes.
+
+The spread, then, is not the market's estimate of default probability. It is
+closer to a live reading of how much of that loop the market thinks is currently
+running — and of how credible the backstop is.
+
+## The backstop, and its condition
+
+Since 2012 the answer to "who stops the loop" has been the ECB, and the
+important detail is that its instruments are conditional. Support is available
+to a country that is following agreed fiscal rules; it is not available
+unconditionally. That conditionality is what makes an Italian election a
+market event, because what is being priced is not the winner's spending plans in
+themselves but whether those plans keep the backstop available.
+
+This is why Italian spreads often move *before* a policy is announced and settle
+*after* the government has been formed, regardless of who formed it — the same
+pattern the weekly issue on election premia describes in a different market.
+
+## What to watch
+
+Three things, in order of how much they tell you:
+
+1. **The domestic bank holding share.** Rising while the spread widens is the
+   loop tightening. Rising while the spread is calm is just carry.
+2. **Average residual maturity.** Shortening means the Treasury is being pushed
+   down the curve to fund, and it converts a slow problem into a fast one.
+3. **The gap between the ten-year spread and the two-year spread.** Widening at
+   the short end is the market pricing something imminent — redenomination or a
+   liquidity event. Widening only at the long end is a growth story, which is
+   less alarming and much more common.
+
+The thing that is *not* worth watching is the debt-to-GDP ratio in isolation. It
+moves slowly, it is revised, and by the time it has told you anything the other
+three have been shouting for a year.

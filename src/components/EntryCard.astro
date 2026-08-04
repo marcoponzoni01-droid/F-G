@@ -1,0 +1,80 @@
+---
+import Chips from './Chips.astro';
+import type { ArchiveEntry } from '../lib/archive';
+import { formatDateShort, isoDate } from '../lib/issues';
+
+interface Props {
+	entry: ArchiveEntry;
+	/** Marks the newest issue wherever it appears in a list. */
+	current?: boolean;
+}
+
+const { entry, current = false } = Astro.props;
+
+/**
+ * One card for both kinds, because they sit in one list and a reader scanning
+ * the archive should not have to learn two layouts.
+ *
+ * What differs is the top line, and it differs because the two things are
+ * indexed differently: an issue by its place in the sequence, a study by its
+ * subject. The eyebrow says which you are looking at without needing a badge.
+ */
+const isStudy = entry.kind === 'study';
+---
+
+{/*
+  `min-w-0` is load-bearing. A card is a grid item, so it defaults to
+  min-width:auto and grows to fit its widest unbreakable child — and in a
+  single-column grid that widened column drags every sibling card with it. A
+  subject like "Monetary policy and supply shocks" pushed the whole page 13px
+  sideways on a phone until the eyebrow below was allowed to wrap.
+*/}
+<article
+	class="group min-w-0 border border-line bg-surface p-5 transition-colors hover:border-line-strong"
+	data-kind={entry.kind}
+>
+	<div class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+		{
+			isStudy ? (
+				/* Not nowrap: a subject can be a sentence. */
+				<span class="label text-accent">Study · {entry.subject}</span>
+			) : (
+				<span class="label whitespace-nowrap">
+					No. {entry.issueNumber} ·{' '}
+					<time datetime={isoDate(entry.date)}>{formatDateShort(entry.date)}</time>
+				</span>
+			)
+		}
+		{
+			current && (
+				<span class="label whitespace-nowrap border border-accent text-accent px-1.5 py-0.5 leading-none">
+					Current issue
+				</span>
+			)
+		}
+	</div>
+
+	<h3 class="mt-2.5 text-xl leading-snug">
+		<a href={entry.href} class="no-underline transition-colors group-hover:text-accent">
+			<span class="sr-only">Read: </span>{entry.title}
+		</a>
+	</h3>
+
+	<p class="mt-2 text-sm leading-relaxed text-ink-muted">{entry.dek}</p>
+
+	{
+		isStudy && (
+			<p class="mt-2 label">
+				{entry.updated ? 'Updated' : 'Published'}{' '}
+				<time datetime={isoDate(entry.date)}>{formatDateShort(entry.date)}</time>
+			</p>
+		)
+	}
+
+	<Chips
+		regions={entry.regions}
+		assets={entry.assets}
+		eventTypes={entry.eventTypes}
+		class="mt-4"
+	/>
+</article>

@@ -72,7 +72,7 @@ const isCurrent = all[0]?.id === issue.id;
 
 			<h1 class="mt-4 font-serif text-3xl sm:text-4xl leading-tight max-w-3xl">{title}</h1>
 			<p class="mt-4 max-w-2xl text-lg leading-relaxed text-ink-muted">{dek}</p>
-			<Chips regions={regions} assets={assets} eventType={eventType} linked class="mt-6" />
+			<Chips regions={regions} assets={assets} eventTypes={[eventType]} linked class="mt-6" />
 		</header>
 
 		<div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14 pt-9">

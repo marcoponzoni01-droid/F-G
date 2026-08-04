@@ -1,16 +1,22 @@
 ---
 import Base from '../layouts/Base.astro';
 import Chips from '../components/Chips.astro';
-import IssueCard from '../components/IssueCard.astro';
+import EntryCard from '../components/EntryCard.astro';
 import MarketMoves from '../components/MarketMoves.astro';
 import NewsletterForm from '../components/NewsletterForm.astro';
+import { entryFromIssue, entryFromStudy } from '../lib/archive';
 import { formatDate, formatWeekOf, getIssueIndex, isoDate } from '../lib/issues';
+import { getPublishedStudies } from '../lib/studies';
 import { href, issueHref } from '../lib/paths';
 import { site } from '../config/site';
 
-// `current` is just the newest issue by date — see src/lib/issues.ts.
+// `current` is just the newest issue by date — see src/lib/issues.ts. Studies
+// are fetched separately and can never become the hero, by construction.
 const { all, current } = await getIssueIndex();
-const recent = all.slice(1, 4);
+const studies = await getPublishedStudies();
+
+const recent = all.slice(1, 4).map(entryFromIssue);
+const recentStudies = studies.slice(0, 3).map(entryFromStudy);
 ---
 
 <Base path="/">
@@ -34,7 +40,7 @@ const recent = all.slice(1, 4);
 					<Chips
 						regions={current.data.regions}
 						assets={current.data.assets}
-						eventType={current.data.eventType}
+						eventTypes={[current.data.eventType]}
 						linked
 						class="mt-6"
 					/>
@@ -90,8 +96,33 @@ const recent = all.slice(1, 4);
 						</a>
 					</div>
 					<div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-						{recent.map((issue) => (
-							<IssueCard issue={issue} />
+						{recent.map((entry) => (
+							<EntryCard entry={entry} />
+						))}
+					</div>
+				</section>
+			)
+		}
+
+		{/* Studies get their own strip rather than mixing into the archive row:
+		    a reader scanning the homepage is asking "what happened lately", and
+		    a piece with no date attached answers a different question. */}
+		{
+			recentStudies.length > 0 && (
+				<section class="pb-12">
+					<div class="flex items-baseline justify-between gap-4 border-t border-line pt-8">
+						<h2 class="label">Studies</h2>
+						<a href={href('/studies')} class="label no-underline hover:text-ink">
+							All studies →
+						</a>
+					</div>
+					<p class="mt-3 max-w-2xl text-sm text-ink-muted">
+						Standing pieces on how one economy, or one mechanism, transmits a shock. Kept current
+						rather than filed away.
+					</p>
+					<div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+						{recentStudies.map((entry) => (
+							<EntryCard entry={entry} />
 						))}
 					</div>
 				</section>

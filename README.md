@@ -5,7 +5,9 @@
 A publication with two services that are really one thing:
 
 1. **Newsletter** — one issue a week on how the week's geopolitical events moved capital.
-2. **Database** — a permanent, searchable archive of every issue, filterable by region, asset class, event type and date.
+2. **Database** — a permanent, searchable archive, filterable by region, asset class, event type and date.
+
+The archive holds two kinds of piece. **Issues** are the weekly record: numbered, dated, and never edited after publication. **Studies** are standing reference — how one country's economy transmits a shock, or how one mechanism works wherever it runs — and are revised as the facts change, carrying the date they were last revised. They share a taxonomy, an archive and a search box; they are separate collections so that publishing a study can never take over "this week".
 
 The central idea: **a newsletter issue and an archive entry are the same object at different ages.** There is no "move to archive" step, no published/archived flag, nothing to remember. Each issue is one file, and the newest date is the current issue. Commit next week's file and last week's demotes itself.
 
@@ -57,6 +59,16 @@ npm run dev          # http://localhost:4321
 4. **Commit and push.** The homepage now leads with this issue, last week's has moved into the archive, and the RSS feed and search index have both regenerated. Nothing else to do.
 
 Then paste the body into your newsletter platform and send.
+
+## Publishing a study
+
+```bash
+cp src/content/studies/_TEMPLATE.mdx src/content/studies/a-short-slug.mdx
+```
+
+A study has no `issueNumber` and no week-ending `date` — those only mean something inside a weekly sequence. It has a `subject` (what it is about), a `subjectKind` (`country` or `mechanism`, which groups it on `/studies`), `eventTypes` in the plural, and `published`. **Set `updated` whenever you revise it**; the page then leads with "Updated …", because what a reader of reference material needs to know is how stale it might be.
+
+The taxonomy's regions are coarse on purpose — `Europe`, not `Italy` — so the nation goes in `subject`. If per-country browsing becomes worth building later, that field is already the data it would be built from.
 
 ### Adding a region, asset class or event type
 
@@ -110,20 +122,25 @@ src/
     site.ts            Name, tagline, the newsletter switch, archive behaviour
     taxonomy.ts        Regions / assets / event types — single source of truth
   content/
-    issues/            One MDX file per issue. _TEMPLATE.mdx is not published.
-  content.config.ts    Zod schema validating every issue's frontmatter
+    issues/            One MDX file per weekly issue. _TEMPLATE.mdx is not published.
+    studies/           One MDX file per standing study. Same, separate collection.
+  content.config.ts    Zod schemas validating both collections' frontmatter
   lib/
     issues.ts          Which issue is current, which are archived, date formatting
+    studies.ts         Studies, newest first, grouped by subject kind
+    archive.ts         The one ArchiveEntry shape both collections flatten into
     paths.ts           Base-aware URL helpers — every internal link goes through these
     charts/            Three SVG renderers + the zod specs that validate them
   components/
     ArchiveExplorer.astro   Search + facet filters (the only interactive component)
-    IssueChart.astro        The one visual an issue gets
+    EntryCard.astro         One card for both kinds
+    IssueChart.astro        The one visual a piece gets
     MarketMoves.astro       The standing five-instrument panel
     NewsletterForm.astro    Provider-switchable signup
   pages/
     index.astro             This week
-    archive.astro           The database
+    archive.astro           The database — issues and studies together
+    studies/                The studies index and one study
     about.astro             About Us — what this is, and its limits
     issues/[...id].astro    One issue
     search-index.json.ts    Build-time search index
@@ -137,7 +154,9 @@ docs/DEPLOYING.md           How to go live when you're ready
 
 At build time `search-index.json` is generated from every issue. The archive page renders all cards server-side — so it works with JavaScript disabled and is fully crawlable — and the client script only ever hides and shows those cards as you search and filter. Filter state is mirrored into the URL, so any result set is a shareable link.
 
-A query runs two ways at once. **Titles, tags, regions and asset classes** go through Fuse, so a typo still finds the issue. **Deks, summaries and article bodies** are matched literally. Fuzzy matching prose does not work: something in three thousand characters is nearly always within the edit distance of the query, so `qualification` matched one issue when there were five and half the archive when there were eight. Precision where the text is long, tolerance where it is short.
+A query runs **literally first, fuzzily only as a fallback**. If anything contains the query as typed — in a title, subject, tag, region, asset, dek, summary or body — those are the results. Only when nothing does is Fuse allowed to answer, which makes fuzziness the "did you mean" it should always have been.
+
+Merging the two instead of ordering them does not work, and gets worse as the corpus grows. Something in three thousand characters is nearly always within the edit distance, so `qualification` matched one issue of five and four of eight. Short fields betray you too: `Italy` matches `capital` in another entry's tags, because "ital" is inside it. And tightening the threshold far enough to stop that also stops `sanctons` finding the sanctions issue — which is the one thing fuzziness is for.
 
 If the fetch fails, the complete list stays on screen. There is no server and no database to run.
 
@@ -146,6 +165,8 @@ If the fetch fails, the complete list stays on screen. There is no server and no
 `check:links` proves every link resolves. `scripts/check-content.mjs` reads the built HTML and asserts the things that stay *silently* wrong instead of failing a build: an issue that exists as a page but never reached the archive or the search index, a gap in the numbering after a renumber, a chart that disappeared from an issue, a market panel whose weeks stopped compounding into each other, a prev/next chain that lies at one end, and a filter option that would return nothing if a reader picked it.
 
 It reads `dist/` rather than the content collection on purpose — a bug in a page template is exactly what it is for.
+
+The check that earns its keep most is the last one: **a study, however recently published, must never appear as the homepage hero.** That is the entire reason issues and studies are separate collections rather than one collection with a `kind` field, and if it ever broke nothing else on the page would look wrong.
 
 ---
 

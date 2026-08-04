@@ -1,0 +1,76 @@
+---
+# Copy this file to src/content/studies/a-short-slug.mdx and fill it in.
+# The filename's slug becomes the URL: /studies/a-short-slug
+# Files starting with an underscore are never published, so this one is safe here.
+#
+# A study is not an issue. An issue reports a week, is numbered, and is never
+# edited after publication. A study explains a structure, has no number, and IS
+# revised — set `updated` whenever you revise it. See the About page.
+
+title: 'Headline, under 120 characters'
+dek: 'One sentence under the title. The structural claim the piece is making.'
+
+summary: >-
+  One paragraph. Reused on cards, in the RSS feed and as the page's meta
+  description, so write it to stand alone.
+
+# What the study is about. Shown above the title and weighted heavily in search:
+# a reader looks a study up by its subject as often as by its title.
+subject: 'Italy'
+
+# country   — how one economy transmits a shock
+# mechanism — how one channel works, wherever it runs
+subjectKind: country
+
+# Must match the lists in src/config/taxonomy.ts exactly. The taxonomy's regions
+# are coarse on purpose (Europe, not Italy) — the nation goes in `subject`.
+regions: [Europe]
+assets: [Sovereign Debt, Rates]
+
+# Plural, where an issue's `eventType` is singular: an issue covers one event and
+# so one channel, while a study explains a structure several channels run through.
+eventTypes: [sovereign-debt, monetary]
+
+tags: [free-text, no-validation-here]
+
+published: 2026-08-04
+# Set — and update — whenever the piece is revised. The page then leads with
+# "Updated …", because what a reader of reference material needs to know is how
+# stale it might be.
+# updated: 2026-11-02
+
+# Optional. Identical to an issue's chart: see src/content/issues/_TEMPLATE.mdx
+# for the three types and their required fields, and set `provenance` whenever
+# the figures are real rather than illustrative.
+# chart:
+#   type: divergence
+#   ...
+
+sources:
+  - { title: 'Name of source', url: 'https://example.com' }
+
+# true keeps it visible in `npm run dev` but out of production builds.
+draft: true
+---
+
+import IssueChart from '../../components/IssueChart.astro';
+
+Open with the misconception the piece exists to correct, or the question a
+reader would have to already know the answer to.
+
+## What the structure is
+
+The facts that do not change week to week. This is the part a weekly issue has
+to assume.
+
+## Why it works that way
+
+The mechanism. Keep it concrete enough that a reader could check it.
+
+{/* Delete this line, and the import above, if the study has no chart. */}
+<IssueChart chart={frontmatter.chart} />
+
+## What to watch
+
+The published series that would tell a reader the structure is shifting —
+ordered by how much each one actually tells you.
