@@ -122,6 +122,23 @@
 		color: var(--ink-faint);
 	}
 
+	/* Recap bullets. A short rule rather than a dot: these lines are a set of
+	   measurements, and a rule reads as a ledger entry where a bullet would read
+	   as a step in an argument. */
+	.key-point {
+		position: relative;
+		padding-left: 1.15rem;
+	}
+
+	.key-point::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.72em;
+		width: 0.65rem;
+		border-top: 1px solid var(--accent);
+	}
+
 	/* Long-form article body. Deliberately narrow measure for readability. */
 	.prose {
 		font-size: 1.0625rem;

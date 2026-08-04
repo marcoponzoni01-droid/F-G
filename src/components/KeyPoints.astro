@@ -1,0 +1,39 @@
+---
+interface Props {
+	points: readonly string[];
+	/** Heading for the block. "In short" for an issue. */
+	heading?: string;
+}
+
+const { points, heading = 'In short' } = Astro.props;
+
+/**
+ * The recap that opens an issue.
+ *
+ * Set in the body typeface rather than the article's, and bordered, so it reads
+ * as a summary of the piece rather than its first paragraph — a reader
+ * skimming should be able to stop after this and have got the figures.
+ *
+ * `tabular-nums` matters more than it looks: these lines are mostly numbers,
+ * and proportional digits make a stack of them look ragged.
+ */
+---
+
+{
+	points.length > 0 && (
+		<section
+			class="border border-line bg-surface px-5 py-4 tabular-nums"
+			aria-labelledby="key-points"
+			data-key-points
+		>
+			<h2 id="key-points" class="label">
+				{heading}
+			</h2>
+			<ul class="mt-3 space-y-2">
+				{points.map((point) => (
+					<li class="key-point text-[0.9375rem] leading-relaxed text-ink">{point}</li>
+				))}
+			</ul>
+		</section>
+	)
+}

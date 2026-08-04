@@ -48,7 +48,9 @@ npm run dev          # http://localhost:4321
 
 2. **Fill in the frontmatter.** `regions`, `assets` and `eventType` must match the lists in `src/config/taxonomy.ts` — a typo fails the build with a message naming the file and the allowed values, rather than quietly producing an issue no filter can find. Set `draft: false` when it's ready.
 
-   The `marketMoves` block is the standing panel: the same instruments every week, so consecutive issues read as a series rather than as unrelated facts. `npm run check:content` asserts that each week's levels and percentages compound into the next.
+   `keyPoints` is required: three to five phrases, each under 120 characters, opening the issue as a recap. Put a figure in every one you can — a reader deciding whether to read the piece wants the numbers that make it worth reading, not a paraphrase of the argument. The build enforces the shape and `check:content` enforces that most of them carry a number.
+
+   The `marketMoves` block is the standing panel: the same instruments every week, so consecutive issues read as a series rather than as unrelated facts. It **renders on the homepage only**, for whichever issue is current — an archived issue showing months-old levels reads as though those were still today's prices. The data still lives on every issue, and `check:content` asserts each week's levels and percentages compound into the next.
 
 3. **Write the body in Markdown**, then check it:
 

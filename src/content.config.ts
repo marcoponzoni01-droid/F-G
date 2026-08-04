@@ -47,6 +47,16 @@ const issues = defineCollection({
 		/** Reused for cards, RSS, and the meta description. */
 		summary: z.string().min(1).max(400),
 		/**
+		 * The recap that opens every issue.
+		 *
+		 * Phrases, not sentences, and each one carrying a figure wherever it can:
+		 * a reader deciding whether to read the piece wants the numbers that make
+		 * it worth reading, not a paraphrase of the argument. The 120-character
+		 * ceiling is what keeps them phrases — anything longer is prose, and prose
+		 * belongs in the body.
+		 */
+		keyPoints: z.array(z.string().min(1).max(120)).min(3).max(5),
+		/**
 		 * The week's price action. Optional — omit for quiet weeks.
 		 *
 		 * `level` carries the close as it should publish, formatted, because a

@@ -3,16 +3,9 @@ import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Chips from '../../components/Chips.astro';
-import MarketMoves from '../../components/MarketMoves.astro';
+import KeyPoints from '../../components/KeyPoints.astro';
 import NewsletterForm from '../../components/NewsletterForm.astro';
-import {
-	formatDate,
-	formatWeekOf,
-	getNeighbours,
-	getPublishedIssues,
-	isoDate,
-	type Issue,
-} from '../../lib/issues';
+import { formatDate, getNeighbours, getPublishedIssues, isoDate, type Issue } from '../../lib/issues';
 import { href, issueHref } from '../../lib/paths';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -27,20 +20,16 @@ interface Props {
 
 const { issue, all } = Astro.props;
 const { Content } = await render(issue);
-const {
-	title,
-	dek,
-	date,
-	issueNumber,
-	regions,
-	assets,
-	eventType,
-	tags,
-	summary,
-	marketMoves,
-	marketMovesNote,
-	sources,
-} = issue.data;
+/*
+ * `marketMoves` is deliberately not read here.
+ *
+ * It stays in the frontmatter — it is the week's record, and the homepage
+ * renders it for whichever issue is current — but an archived issue showing a
+ * standing market panel from months ago invites the reader to treat it as
+ * current. The panel belongs to "this week", not to the piece.
+ */
+const { title, dek, date, issueNumber, regions, assets, eventType, tags, summary, keyPoints, sources } =
+	issue.data;
 
 const { older, newer } = getNeighbours(all, issue.id);
 const isCurrent = all[0]?.id === issue.id;
@@ -76,17 +65,17 @@ const isCurrent = all[0]?.id === issue.id;
 		</header>
 
 		<div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-14 pt-9">
-			<div class="prose max-w-[68ch]">
-				<Content />
+			{/* min-w-0 on the column, not the prose: this div is now the grid item,
+			    and a grid item defaults to growing to its widest child. */}
+			<div class="min-w-0 max-w-[68ch]">
+				<KeyPoints points={keyPoints} />
+
+				<div class="prose mt-9">
+					<Content />
+				</div>
 			</div>
 
 			<aside class="lg:sticky lg:top-8 space-y-6 self-start">
-				{
-					marketMoves.length > 0 && (
-						<MarketMoves moves={marketMoves} period={formatWeekOf(date)} note={marketMovesNote} />
-					)
-				}
-
 				{
 					sources.length > 0 && (
 						<section class="border border-line bg-surface">

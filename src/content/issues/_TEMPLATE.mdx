@@ -23,9 +23,22 @@ summary: >-
   One paragraph. Reused on cards, in the RSS feed and as the page's meta
   description, so write it to stand alone.
 
+# The recap that opens the issue: three to five phrases, not sentences, each
+# under 120 characters. Put a figure in every one you can — a reader deciding
+# whether to read the piece wants the numbers that make it worth reading, not a
+# paraphrase of the argument. Required; the build fails without it.
+keyPoints:
+  - 'Brent rose 4.2% on the announcement, with no barrel lost'
+  - 'The risk premium unwound within three weeks'
+  - 'Freight rates, not crude, carried the cost — up 18% on the same route'
+
 # The standing panel: the same instruments every week, so consecutive issues read
 # as a series. `level` is the close as it should publish; `note` adds a
 # story-specific mover. Delete the whole block for a quiet week.
+#
+# This renders on the homepage only, for whichever issue is current — an
+# archived issue showing a standing panel from months ago reads as though those
+# were still today's prices.
 marketMoves:
   - { instrument: 'S&P 500', level: '6,412.30', change: '+0.4%' }
   - { instrument: 'NASDAQ', level: '21,880.15', change: '+0.9%' }

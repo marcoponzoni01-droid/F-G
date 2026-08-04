@@ -16,6 +16,7 @@
  */
 
 import { readFile, readdir } from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const DIST = path.resolve('dist');
@@ -221,6 +222,35 @@ for (const issue of issues) {
 	);
 }
 
+// ── 1c. Every issue opens with a recap ────────────────────────────────────
+for (const issue of issues) {
+	const block = issue.html.match(/<section[^>]*data-key-points[\s\S]*?<\/section>/);
+	check(`${issue.slug} opens with a recap`, Boolean(block), 'no key-points block');
+	if (!block) continue;
+
+	const points = all(block[0], /<li class="key-point[^"]*">([^<]+)<\/li>/g).map(decode);
+	check(`${issue.slug} recap is 3 to 5 points`, points.length >= 3 && points.length <= 5, String(points.length));
+
+	// Phrases, not sentences: a full stop means someone wrote prose here.
+	const sentences = points.filter((p) => /\.\s*$/.test(p));
+	check(`${issue.slug} recap points are phrases`, sentences.length === 0, sentences.join(' | '));
+
+	// "Better if they have numbers inside" — not every line can carry one, but a
+	// recap without any figures is a paraphrase of the argument, not a summary
+	// of what the piece found.
+	const withFigures = points.filter((p) => /\d/.test(p));
+	check(
+		`${issue.slug} recap is mostly figures`,
+		withFigures.length >= Math.ceil(points.length / 2),
+		`${withFigures.length} of ${points.length} carry a number`,
+	);
+
+	// It has to come before the article, or it is not a recap.
+	const recapAt = issue.html.indexOf('data-key-points');
+	const proseAt = issue.html.indexOf('class="prose');
+	check(`${issue.slug} recap precedes the body`, recapAt > 0 && recapAt < proseAt);
+}
+
 // ── 2. Numbering is contiguous and agrees with date order ─────────────────
 const numbers = issues.map((i) => i.number);
 check('every issue states its number', numbers.every(Number.isInteger), String(numbers));
@@ -355,27 +385,49 @@ for (const issue of issues.filter((i) => EXPECTED_CHARTS[i.slug] === 'event-trac
 // Each issue quotes a level and a week-over-week change. Consecutive issues must
 // therefore agree: last week's level, moved by this week's change, is this
 // week's level. Hand-written numbers drift apart silently; this catches it.
-function panel(html) {
-	const section = html.match(/<section aria-label="Market moves"[\s\S]*?<\/section>/);
-	if (!section) return null;
-	const rows = [...section[0].matchAll(/<li[^>]*data-move[^>]*>([\s\S]*?)<\/li>/g)];
-	return rows.map((row) => {
-		const body = row[1];
-		const name = text(body.split('<span')[1] ?? '').trim();
-		const level = body.match(/data-level[^>]*>([^<]+)</);
-		const change = body.match(/data-change[^>]*>([^<]+)</);
-		return {
-			instrument: text(body.match(/<span class="text-sm">([^<]+)<\/span>/)?.[1] ?? name),
-			level: level ? Number(level[1].replace(/,/g, '')) : null,
-			change: change ? Number(change[1].replace('−', '-').replace('%', '')) : null,
-		};
-	});
+//
+// Read from the frontmatter rather than dist, uniquely in this file. The panel
+// renders on the homepage only — for whichever issue is current — so the built
+// site never shows two consecutive weeks at once and the chain cannot be
+// checked from it. The invariant is about the data being coherent, not about
+// where it is drawn, so the source is the right place to look.
+const SOURCE = path.resolve('src/content/issues');
+
+function panelFromSource(slug) {
+	const file = path.join(SOURCE, `${slug}.mdx`);
+	if (!existsSync(file)) return null;
+	const front = readFileSync(file, 'utf8').split('---')[1] ?? '';
+	const block = front.match(/\nmarketMoves:\n([\s\S]*?)\n[a-zA-Z]/);
+	if (!block) return null;
+	return [...block[1].matchAll(/instrument:\s*'([^']+)'.*?(?:level:\s*'([^']+)')?.*?change:\s*'([^']+)'/g)].map(
+		(m) => ({
+			instrument: m[1],
+			level: m[2] ? Number(m[2].replace(/,/g, '')) : null,
+			change: Number(m[3].replace('−', '-').replace('%', '')),
+		}),
+	);
 }
 
-const panels = issues.map((issue) => ({ slug: issue.slug, rows: panel(issue.html) }));
+const panels = issues.map((issue) => ({ slug: issue.slug, rows: panelFromSource(issue.slug) }));
 for (const { slug, rows } of panels) {
-	check(`${slug} has a market panel`, rows !== null && rows.length > 0);
+	check(`${slug} carries a market panel in its frontmatter`, rows !== null && rows.length > 0);
 }
+
+// …and it must not render on the issue page. The panel belongs to "this week";
+// an archived issue showing months-old levels invites a reader to trade on them.
+for (const issue of issues) {
+	check(
+		`${issue.slug} does not render a market panel`,
+		!issue.html.includes('data-market-moves'),
+		'the standing panel is the homepage’s, not the article’s',
+	);
+}
+
+check(
+	'the homepage does render one',
+	home.includes('data-market-moves'),
+	'the panel has to live somewhere',
+);
 
 for (let i = 0; i < panels.length - 1; i++) {
 	const newer = panels[i];
