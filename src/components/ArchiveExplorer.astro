@@ -286,30 +286,52 @@ const control =
 
 		hydrateFromUrl();
 
+		function start(data: SearchRecord[]) {
+			records = data;
+			fuse = new Fuse(records, {
+				// Short fields only. `dek`, `summary` and `body` are matched
+				// literally instead — see search() above.
+				keys: [
+					{ name: 'title', weight: 3 },
+					{ name: 'tags', weight: 2 },
+					{ name: 'regions', weight: 1.5 },
+					{ name: 'assets', weight: 1.5 },
+				],
+				threshold: 0.34,
+				ignoreLocation: true,
+				minMatchCharLength: 2,
+			});
+			apply();
+		}
+
+		/**
+		 * An index already embedded in the page wins over fetching one.
+		 *
+		 * The normal path is the fetch below: the index is its own build artefact,
+		 * so it caches separately from the HTML. But this same markup is also
+		 * exported as a single self-contained file for design work, and there a
+		 * relative fetch resolves to nothing — leaving search and filters quietly
+		 * dead on a page that otherwise looks completely fine.
+		 */
+		const embedded = document.getElementById('search-index')?.textContent;
+		let ready = false;
+		if (embedded) {
+			try {
+				start(JSON.parse(embedded));
+				ready = true;
+			} catch (error) {
+				console.warn('[archive] embedded index unreadable, falling back to fetch', error);
+			}
+		}
+
 		const indexUrl = root.dataset.indexUrl;
-		if (indexUrl) {
+		if (!ready && indexUrl) {
 			fetch(indexUrl)
 				.then((response) => {
 					if (!response.ok) throw new Error(`Search index responded ${response.status}`);
 					return response.json() as Promise<SearchRecord[]>;
 				})
-				.then((data) => {
-					records = data;
-					fuse = new Fuse(records, {
-						// Short fields only. `dek`, `summary` and `body` are matched
-						// literally instead — see search() above.
-						keys: [
-							{ name: 'title', weight: 3 },
-							{ name: 'tags', weight: 2 },
-							{ name: 'regions', weight: 1.5 },
-							{ name: 'assets', weight: 1.5 },
-						],
-						threshold: 0.34,
-						ignoreLocation: true,
-						minMatchCharLength: 2,
-					});
-					apply();
-				})
+				.then(start)
 				.catch((error) => {
 					// Degrade to the complete server-rendered list.
 					console.warn('[archive] search index unavailable, showing all issues', error);

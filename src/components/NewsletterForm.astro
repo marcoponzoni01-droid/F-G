@@ -2,8 +2,14 @@
 import { newsletter, site } from '../config/site';
 
 interface Props {
-	/** `panel` is the bordered block used on the homepage and subscribe page. */
-	variant?: 'panel' | 'inline';
+	/**
+	 * `panel` is the bordered block used on the subscribe page and in an article
+	 * column. `band` is the same panel laid out horizontally — for the full-width
+	 * homepage slot, where a stacked block leaves the right half of the page
+	 * empty and the form ends up a long way under the sentence asking for it.
+	 * `inline` drops the border for use directly after body copy.
+	 */
+	variant?: 'panel' | 'band' | 'inline';
 	heading?: string;
 	blurb?: string;
 }
@@ -14,6 +20,9 @@ const {
 	blurb = `${site.cadence}: one issue on what moved, why, and what it cost.`,
 } = Astro.props;
 
+/** The band puts the pitch and the field side by side once there is room. */
+const isBand = variant === 'band';
+
 const field =
 	'w-full bg-paper border border-line-strong px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none';
 const button =
@@ -22,13 +31,16 @@ const button =
 
 <section
 	class:list={[
-		variant === 'panel' && 'border border-line bg-surface p-6',
+		(variant === 'panel' || isBand) && 'border border-line bg-surface p-6',
+		isBand && 'md:flex md:items-center md:justify-between md:gap-10',
 		variant === 'inline' && 'border-t border-line pt-6',
 	]}
 	aria-labelledby="newsletter-heading"
 >
-	<h2 id="newsletter-heading" class="font-serif text-xl">{heading}</h2>
-	<p class="mt-1.5 text-sm text-ink-muted">{blurb}</p>
+	<div class:list={[isBand && 'md:max-w-md']}>
+		<h2 id="newsletter-heading" class="font-serif text-xl">{heading}</h2>
+		<p class="mt-1.5 text-sm text-ink-muted">{blurb}</p>
+	</div>
 
 	{
 		newsletter.provider === 'buttondown' && (
@@ -36,7 +48,10 @@ const button =
 				action={`https://buttondown.com/api/emails/embed-subscribe/${newsletter.handle}`}
 				method="post"
 				target="_blank"
-				class="mt-4 flex flex-col gap-2 sm:flex-row"
+				class:list={[
+					'mt-4 flex flex-col gap-2 sm:flex-row',
+					isBand && 'md:mt-0 md:w-96 md:shrink-0',
+				]}
 			>
 				<label class="sr-only" for="bd-email">
 					Email address
@@ -72,7 +87,7 @@ const button =
 
 	{
 		newsletter.provider === 'none' && (
-			<div class="mt-4">
+			<div class:list={['mt-4', isBand && 'md:mt-0 md:w-96 md:shrink-0']}>
 				{/*
 				  No <form> here on purpose: with no provider configured there is nowhere
 				  to post, and a form that silently reloads the page is worse than one
