@@ -83,11 +83,31 @@ every time:
 
 ## Checks
 
-| Command | Checks |
-|---|---|
-| `node scripts/design/check-nojs.mjs` | 13 views readable with JavaScript off; all hooks present |
-| `node scripts/design/verify.mjs` | 60 checks: routing, search, facets, articles, overflow at three widths |
-| `./scripts/design/test-roundtrip.sh` | no-op import is byte identical; a 1-of-13 return keeps the other 12 |
+| Command | Checks | In CI |
+|---|---|---|
+| `npm run check:site` | views present and none hidden, hooks intact, banner rules, no external loads, index parses | yes |
+| `npm run check:roundtrip` | no-op import is byte identical; a 1-of-13 return keeps the other 12 | yes |
+| `node scripts/design/check-nojs.mjs` | the same no-JS property, in a real browser | no |
+| `node scripts/design/verify.mjs` | 60 checks: routing, search, facets, articles, overflow at three widths | no |
+
+The two in CI need no browser and add about a second. The browser-driven pair
+stay local — run them after an import, before pushing.
+
+The invariants worth knowing about, because each one fails *silently*:
+
+- **No view ships `hidden`.** The regression with history: hide the views and
+  reveal them by script, and anything that does not run scripts sees a blank
+  document. That is how a hand-off came back missing twelve of thirteen pages.
+- **Hooks intact.** `data-part` and `data-view` are what the merge matches on.
+  Lose them and the next round trip has nothing to land against.
+- **Banner rules present.** They are the only thing telling Design what not to
+  touch, and they travel inside the file.
+- **Search index parses.** When it does not, the archive shows everything —
+  which looks like it worked.
+
+Anchor `href`s are not treated as external references. The article sidebars
+cite IMF PortWatch and UNCTAD; a citation pointing at the open web is correct.
+Only `src` attributes and `<link href>` count as loads.
 
 ## Sources
 
