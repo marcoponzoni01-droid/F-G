@@ -14,8 +14,10 @@
     "check": "astro check",
     "check:links": "node scripts/check-links.mjs",
     "check:content": "node scripts/check-content.mjs",
-    "verify": "astro check && astro build && node scripts/check-links.mjs && node scripts/check-content.mjs",
-    "astro": "astro"
+    "verify": "astro check && astro build && node scripts/check-links.mjs && node scripts/check-content.mjs && npm run check:site && npm run check:roundtrip",
+    "astro": "astro",
+    "check:site": "node scripts/design/check-invariants.mjs",
+    "check:roundtrip": "./scripts/design/test-roundtrip.sh"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
