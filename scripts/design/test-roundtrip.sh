@@ -12,19 +12,24 @@
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 
-BEFORE=$(mktemp); trap 'rm -f "$BEFORE" /tmp/design-return.html' EXIT
+# mktemp rather than a fixed /tmp path: the first version of this hardcoded a
+# container path and passed locally while failing in CI.
+BEFORE=$(mktemp)
+RETURN=$(mktemp --suffix=.html)
+SELFCOPY=$(mktemp --suffix=.html)
+trap 'rm -f "$BEFORE" "$RETURN" "$SELFCOPY"' EXIT
 cp site/index.html "$BEFORE"
 
 echo "== 1. no-op round trip =="
-cp site/index.html /tmp/selfcopy.html
-python3 scripts/design/import_from_design.py /tmp/selfcopy.html >/dev/null
-rm -f /tmp/selfcopy.html design/incoming/selfcopy.html
+cp site/index.html "$SELFCOPY"
+python3 scripts/design/import_from_design.py "$SELFCOPY" >/dev/null
+rm -f "design/incoming/$(basename "$SELFCOPY")"
 cmp -s "$BEFORE" site/index.html && echo "PASS  identical" || { echo "FAIL  bytes moved"; exit 1; }
 
 echo "== 2. partial return, 1 view of 13 =="
-python3 scripts/design/simulate_design_return.py >/dev/null
-python3 scripts/design/import_from_design.py /tmp/design-return.html >/dev/null
-rm -f design/incoming/design-return.html
+python3 scripts/design/simulate_design_return.py "$RETURN" >/dev/null
+python3 scripts/design/import_from_design.py "$RETURN" >/dev/null
+rm -f "design/incoming/$(basename "$RETURN")"
 python3 - "$BEFORE" <<'PY'
 import sys, re
 sys.path.insert(0, 'scripts/design')
